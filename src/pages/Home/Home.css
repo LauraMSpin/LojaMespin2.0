@@ -1,0 +1,126 @@
+.home-catalog {
+  padding-top: 24px;
+  scroll-margin-top: 90px;
+}
+
+.home-catalog__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.home-catalog__tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  width: min(560px, 100%);
+}
+
+.home-catalog__tools .searchbar {
+  flex: 1 1 220px;
+}
+
+.home-catalog__more {
+  display: flex;
+  justify-content: center;
+  margin-top: 32px;
+}
+
+.about {
+  margin-top: 72px;
+  padding: 64px 0;
+  background: linear-gradient(180deg, var(--cream), var(--offwhite));
+  scroll-margin-top: 80px;
+}
+
+.about__inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: center;
+}
+
+.about__text p {
+  margin-top: 16px;
+  font-size: 1.05rem;
+  color: var(--text-muted);
+}
+
+.about__text .section-title + p {
+  margin-top: 22px;
+}
+
+.about__highlights {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.about__highlights li {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 20px;
+  border: 1px solid rgba(210, 180, 140, 0.4);
+  border-radius: var(--radius);
+  background: var(--white);
+}
+
+.about__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--tan-soft);
+  color: var(--sienna);
+}
+
+.about__highlights h3 {
+  font-size: 1.25rem;
+}
+
+.about__highlights p {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.contact {
+  padding-top: 56px;
+  scroll-margin-top: 80px;
+}
+
+.contact__intro {
+  margin-top: 20px;
+  max-width: 560px;
+  color: var(--text-muted);
+}
+
+.contact__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 22px;
+}
+
+@media (max-width: 900px) {
+  .about__inner {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+}
+
+@media (max-width: 480px) {
+  .about__highlights {
+    grid-template-columns: 1fr;
+  }
+
+  .select-wrap,
+  .select-wrap select {
+    width: 100%;
+  }
+}

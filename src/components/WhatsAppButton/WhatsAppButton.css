@@ -1,0 +1,21 @@
+.wa-float {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 40;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--forest);
+  color: var(--offwhite);
+  box-shadow: var(--shadow-md);
+  transition: transform 0.25s, background 0.25s;
+}
+
+.wa-float:hover {
+  background: var(--olive);
+  transform: scale(1.08);
+}

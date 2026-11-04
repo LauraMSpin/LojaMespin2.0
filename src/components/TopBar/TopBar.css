@@ -1,0 +1,72 @@
+.topbar {
+  background: linear-gradient(90deg, #7a4a24, #8b5a2b 50%, #7a4a24);
+  color: var(--offwhite);
+  font-size: 0.8rem;
+}
+
+.topbar__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 38px;
+  gap: 16px;
+}
+
+.topbar__messages {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 0;
+}
+
+.topbar__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 22px;
+  border-left: 1px solid rgba(250, 240, 230, 0.35);
+}
+
+.topbar__item:first-child {
+  padding-left: 0;
+  border-left: 0;
+}
+
+.topbar__social {
+  display: flex;
+  gap: 14px;
+}
+
+.topbar__social a {
+  display: inline-flex;
+  padding: 4px;
+  transition: opacity 0.2s;
+}
+
+.topbar__social a:hover {
+  opacity: 0.7;
+}
+
+@media (max-width: 900px) {
+  .topbar__messages {
+    flex: 1;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .topbar__messages::-webkit-scrollbar {
+    display: none;
+  }
+
+  .topbar__item {
+    white-space: nowrap;
+    padding: 0 14px;
+  }
+}
+
+@media (max-width: 600px) {
+  .topbar__item span {
+    font-size: 0.75rem;
+  }
+}

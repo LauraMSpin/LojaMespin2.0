@@ -1,0 +1,39 @@
+:root {
+  --brown: #3e2723;
+  --terracotta: #b7410e;
+  --tan: #d2b48c;
+  --tan-soft: #eadcc6;
+  --sage: #8f9970;
+  --cream: #f5f5dc;
+  --offwhite: #faf0e6;
+  --sienna: #a0522d;
+  --caramel: #c19a6b;
+  --olive: #6b8e23;
+  --forest: #153109;
+  --white: #fffdf9;
+
+  /* Natal */
+  --pine: #1f3d2b;
+  --wine: #6b1f2a;
+  --gold-soft: #d9b86c;
+
+  --text: var(--brown);
+  --text-muted: #6d5a52;
+  --line: rgba(62, 39, 35, 0.14);
+
+  --font-serif: "Cormorant Garamond", "Playfair Display", Georgia, serif;
+  --font-sans: "Lato", "Montserrat", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --radius: 12px;
+  --radius-lg: 18px;
+  --shadow-sm: 0 2px 8px rgba(62, 39, 35, 0.08);
+  --shadow-md: 0 10px 28px rgba(62, 39, 35, 0.16);
+  --container: 1240px;
+  --header-offset: 90px;
+}
+
+.theme-natal {
+  --accent: var(--wine);
+  --accent-2: var(--gold-soft);
+  --section-bg: #f6ecdc;
+}

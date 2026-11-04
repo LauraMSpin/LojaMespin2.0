@@ -1,0 +1,53 @@
+.stepper {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--tan);
+  border-radius: 999px;
+  background: var(--white);
+}
+
+.stepper__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  color: var(--brown);
+  transition: background 0.2s, transform 0.15s;
+}
+
+.stepper--sm .stepper__btn {
+  width: 30px;
+  height: 30px;
+}
+
+.stepper__btn:hover:not(:disabled) {
+  background: var(--cream);
+}
+
+.stepper__btn:active:not(:disabled) {
+  transform: scale(0.9);
+}
+
+.stepper__btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.stepper__value {
+  min-width: 32px;
+  text-align: center;
+  font-weight: 700;
+  color: var(--brown);
+  animation: stepper-pop 0.25s ease;
+}
+
+@keyframes stepper-pop {
+  from {
+    transform: scale(1.35);
+  }
+  to {
+    transform: scale(1);
+  }
+}

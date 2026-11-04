@@ -1,0 +1,336 @@
+import { ArrowLeft, MessageCircle, Trash2, X } from "lucide-react";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
+import { Link } from "react-router-dom";
+import { STORE_CONFIG } from "../../data/settings";
+import { useCart } from "../../hooks/useCart";
+import { useDialogBehavior } from "../../hooks/useDialogBehavior";
+import { customizationEntries } from "../../services/cart";
+import {
+  buildOrderMessage,
+  buildWhatsAppUrl,
+  formatCep,
+  validateCustomer,
+  type CustomerErrors
+} from "../../services/whatsapp";
+import type { CartItemDetail, CustomerData } from "../../types";
+import { formatPrice } from "../../utils/format";
+import ProductImage from "../ProductImage/ProductImage";
+import QuantityStepper from "../QuantityStepper/QuantityStepper";
+import "./CartDrawer.css";
+
+type Step = "cart" | "identify" | "review" | "sent";
+
+const TITLES: Record<Step, string> = {
+  cart: "Seu carrinho",
+  identify: "Seus dados",
+  review: "Resumo do pedido",
+  sent: "Pedido encaminhado"
+};
+
+function CartLineRow({ item }: { item: CartItemDetail }) {
+  const { setQuantity, removeLine } = useCart();
+  const { line, product } = item;
+  const custom = customizationEntries(line.customization);
+  return (
+    <li className="cart-line">
+      <div className="cart-line__image">
+        <ProductImage src={product.image} alt={product.name} />
+      </div>
+      <div className="cart-line__body">
+        <div className="cart-line__head">
+          <h3>{product.name}</h3>
+          <button type="button" className="cart-line__remove" onClick={() => removeLine(line.key)} aria-label={`Remover ${product.name}${line.aroma ? ` (${line.aroma})` : ""}`}>
+            <Trash2 size={17} aria-hidden="true" />
+          </button>
+        </div>
+        {line.aroma && <p className="cart-line__meta">Aroma: {line.aroma}</p>}
+        {custom.map((c) => (
+          <p key={c.field} className="cart-line__meta">
+            {c.label}: {c.value}
+          </p>
+        ))}
+        <div className="cart-line__foot">
+          <QuantityStepper
+            size="sm"
+            label={`${product.name}${line.aroma ? ` ${line.aroma}` : ""}`}
+            min={0}
+            max={STORE_CONFIG.maxQuantityPerLine}
+            value={line.quantity}
+            onChange={(v) => setQuantity(line.key, v)}
+          />
+          <div className="cart-line__prices">
+            <span className="cart-line__unit">{formatPrice(item.unitPrice)} un.</span>
+            <strong key={item.subtotal}>{formatPrice(item.subtotal)}</strong>
+          </div>
+        </div>
+      </div>
+    </li>
+  );
+}
+
+function ReviewList({ items }: { items: CartItemDetail[] }) {
+  return (
+    <ul className="review-list">
+      {items.map(({ line, product, unitPrice, subtotal }) => {
+        const custom = customizationEntries(line.customization);
+        return (
+          <li key={line.key}>
+            <div>
+              <strong>{product.name}</strong>
+              <span>
+                {line.aroma ? `${line.aroma} · ` : ""}
+                {line.quantity} × {formatPrice(unitPrice)}
+              </span>
+              {custom.map((c) => (
+                <span key={c.field}>
+                  {c.label}: {c.value}
+                </span>
+              ))}
+            </div>
+            <b>{formatPrice(subtotal)}</b>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
+export default function CartDrawer() {
+  const { isOpen, closeCart, items, count, total, clearCart } = useCart();
+  const panelRef = useRef<HTMLElement>(null);
+  const [step, setStep] = useState<Step>("cart");
+  const [customer, setCustomer] = useState<CustomerData>({ name: "", cep: "" });
+  const [errors, setErrors] = useState<CustomerErrors>({});
+  const [sendError, setSendError] = useState<string | null>(null);
+
+  useDialogBehavior(panelRef, isOpen, closeCart);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setStep("cart");
+      setSendError(null);
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (items.length === 0 && (step === "identify" || step === "review")) setStep("cart");
+  }, [items.length, step]);
+
+  const message = useMemo(
+    () => (items.length ? buildOrderMessage(customer, items, total) : ""),
+    [customer, items, total]
+  );
+  const whatsappUrl = useMemo(() => buildWhatsAppUrl(STORE_CONFIG.whatsapp, message), [message]);
+
+  const submitIdentify = (event: FormEvent) => {
+    event.preventDefault();
+    const found = validateCustomer(customer);
+    setErrors(found);
+    if (Object.keys(found).length === 0) setStep("review");
+  };
+
+  const sendToWhatsApp = () => {
+    if (!whatsappUrl) {
+      setSendError("O número de WhatsApp da loja não está configurado corretamente.");
+      return;
+    }
+    setSendError(null);
+    const anchor = document.createElement("a");
+    anchor.href = whatsappUrl;
+    anchor.target = "_blank";
+    anchor.rel = "noopener noreferrer";
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    setStep("sent");
+  };
+
+  const finishAndClear = () => {
+    clearCart();
+    setStep("cart");
+    closeCart();
+  };
+
+  return (
+    <div className={`cart-overlay ${isOpen ? "is-open" : ""}`} onMouseDown={(e) => e.target === e.currentTarget && closeCart()}>
+      <aside
+        ref={panelRef}
+        className="cart-panel"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="cart-title"
+        tabIndex={-1}
+      >
+        <header className="cart-panel__header">
+          {step === "identify" || step === "review" ? (
+            <button type="button" className="cart-panel__back" onClick={() => setStep(step === "review" ? "identify" : "cart")} aria-label="Voltar">
+              <ArrowLeft size={20} aria-hidden="true" />
+            </button>
+          ) : null}
+          <h2 id="cart-title">{TITLES[step]}</h2>
+          <button type="button" className="cart-panel__close" onClick={closeCart} aria-label="Fechar carrinho">
+            <X size={22} aria-hidden="true" />
+          </button>
+        </header>
+
+        {step === "cart" && (
+          <>
+            {items.length === 0 ? (
+              <div className="cart-empty">
+                <p>Seu carrinho está vazio.</p>
+                <Link to="/catalogo" className="btn btn--primary" onClick={closeCart}>
+                  Ver catálogo
+                </Link>
+              </div>
+            ) : (
+              <>
+                <ul className="cart-panel__list">
+                  {items.map((item) => (
+                    <CartLineRow key={item.line.key} item={item} />
+                  ))}
+                </ul>
+                <footer className="cart-panel__footer">
+                  <div className="cart-sum">
+                    <span>Subtotal ({count} {count === 1 ? "item" : "itens"})</span>
+                    <strong>{formatPrice(total)}</strong>
+                  </div>
+                  <div className="cart-sum cart-sum--muted">
+                    <span>Frete</span>
+                    <span>{STORE_CONFIG.freightLabel}</span>
+                  </div>
+                  <button type="button" className="btn btn--primary" onClick={() => setStep("identify")}>
+                    Finalizar pedido
+                  </button>
+                  <div className="cart-panel__links">
+                    <Link to="/catalogo" onClick={closeCart}>
+                      Voltar ao catálogo
+                    </Link>
+                    <button type="button" onClick={clearCart}>
+                      Limpar carrinho
+                    </button>
+                  </div>
+                </footer>
+              </>
+            )}
+          </>
+        )}
+
+        {step === "identify" && (
+          <form className="cart-form" onSubmit={submitIdentify} noValidate>
+            <p className="cart-form__intro">
+              Informe seus dados para identificarmos o pedido. O endereço completo combinamos pelo WhatsApp.
+            </p>
+            <label>
+              <span>Nome completo</span>
+              <input
+                type="text"
+                autoComplete="name"
+                value={customer.name}
+                onChange={(e) => setCustomer((c) => ({ ...c, name: e.target.value }))}
+                aria-invalid={Boolean(errors.name)}
+                aria-describedby={errors.name ? "err-name" : undefined}
+                maxLength={100}
+              />
+              {errors.name && (
+                <em id="err-name" role="alert">
+                  {errors.name}
+                </em>
+              )}
+            </label>
+            <label>
+              <span>CEP de entrega</span>
+              <input
+                type="text"
+                inputMode="numeric"
+                autoComplete="postal-code"
+                placeholder="00000-000"
+                value={customer.cep}
+                onChange={(e) => setCustomer((c) => ({ ...c, cep: formatCep(e.target.value) }))}
+                aria-invalid={Boolean(errors.cep)}
+                aria-describedby={errors.cep ? "err-cep" : undefined}
+                maxLength={9}
+              />
+              {errors.cep && (
+                <em id="err-cep" role="alert">
+                  {errors.cep}
+                </em>
+              )}
+            </label>
+            <p className="cart-form__note">Não pedimos dados de pagamento nem documentos.</p>
+            <div className="cart-form__actions">
+              <button type="button" className="btn btn--ghost" onClick={() => setStep("cart")}>
+                Voltar ao carrinho
+              </button>
+              <button type="submit" className="btn btn--primary">
+                Revisar pedido
+              </button>
+            </div>
+          </form>
+        )}
+
+        {step === "review" && (
+          <>
+            <div className="cart-panel__list cart-review">
+              <section>
+                <h3>Cliente</h3>
+                <p>{customer.name.trim()}</p>
+                <p>CEP {formatCep(customer.cep)}</p>
+              </section>
+              <section>
+                <h3>Produtos</h3>
+                <ReviewList items={items} />
+              </section>
+              <p className="cart-review__note">
+                Esta é uma solicitação de pedido. Frete, disponibilidade final e pagamento serão confirmados no atendimento pelo WhatsApp.
+              </p>
+            </div>
+            <footer className="cart-panel__footer">
+              <div className="cart-sum">
+                <span>Total dos produtos</span>
+                <strong>{formatPrice(total)}</strong>
+              </div>
+              <div className="cart-sum cart-sum--muted">
+                <span>Frete</span>
+                <span>{STORE_CONFIG.freightLabel}</span>
+              </div>
+              {sendError && <p className="cart-form__error" role="alert">{sendError}</p>}
+              <button type="button" className="btn btn--whatsapp" onClick={sendToWhatsApp}>
+                <MessageCircle size={18} aria-hidden="true" /> Enviar pedido pelo WhatsApp
+              </button>
+              <div className="cart-panel__links">
+                <button type="button" onClick={() => setStep("cart")}>
+                  Voltar ao carrinho
+                </button>
+                <button type="button" onClick={() => setStep("identify")}>
+                  Editar dados
+                </button>
+              </div>
+            </footer>
+          </>
+        )}
+
+        {step === "sent" && (
+          <div className="cart-sent">
+            <p>
+              Abrimos o WhatsApp com a mensagem do seu pedido. Confira e envie para a Mespín.
+            </p>
+            {whatsappUrl && (
+              <a className="btn btn--whatsapp" href={whatsappUrl} target="_blank" rel="noopener noreferrer">
+                <MessageCircle size={18} aria-hidden="true" /> Abrir WhatsApp novamente
+              </a>
+            )}
+            <p className="cart-sent__note">
+              Seu carrinho foi mantido, pois não conseguimos confirmar o envio. Depois de enviar a mensagem, você pode limpá-lo.
+            </p>
+            <button type="button" className="btn btn--ghost" onClick={finishAndClear}>
+              Já enviei — limpar carrinho
+            </button>
+            <button type="button" className="cart-sent__keep" onClick={() => setStep("cart")}>
+              Voltar ao carrinho
+            </button>
+          </div>
+        )}
+      </aside>
+    </div>
+  );
+}
