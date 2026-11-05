@@ -12,7 +12,13 @@
   background: var(--forest);
   color: var(--offwhite);
   box-shadow: var(--shadow-md);
-  transition: transform 0.25s, background 0.25s;
+  transition: transform 0.25s, background 0.25s, opacity 0.25s;
+}
+
+.wa-float.is-hidden {
+  opacity: 0;
+  transform: scale(0.8);
+  pointer-events: none;
 }
 
 .wa-float:hover {

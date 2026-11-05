@@ -1,56 +1,101 @@
-import { Instagram, MessageCircle } from "lucide-react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Instagram, Leaf } from "lucide-react";
+import { Link } from "react-router-dom";
 import { STORE_CONFIG } from "../../data/settings";
 import { storeWhatsAppUrl } from "../../services/whatsapp";
 import { asset } from "../../utils/format";
-import { scrollToSection } from "../../utils/scroll";
+import WhatsAppIcon from "../Icons/WhatsAppIcon";
+import Botanical from "./Botanical";
 import "./Footer.css";
 
+const { footer } = STORE_CONFIG;
+
 export default function Footer() {
-  const location = useLocation();
-  const navigate = useNavigate();
-
-  const goToSection = (id: string) => {
-    if (location.pathname === "/") scrollToSection(id);
-    else navigate("/", { state: { scrollTo: id } });
-  };
-
   return (
-    <footer className="footer">
-      <div className="footer__inner container">
-        <div className="footer__brand">
-          <img src={asset("assets/logo/logo-mespin.png")} alt="Mespín — Chamas com Alma" />
-          <p>{STORE_CONFIG.slogan}</p>
+    <footer id="rodape" className="footer">
+      <Botanical className="footer__leaf footer__leaf--left" />
+      <Botanical className="footer__leaf footer__leaf--right" mirror />
+
+      <div className="footer__main container">
+        <div className="footer__col footer__brand">
+          <div className="footer__logo">
+            <img src={asset("assets/logo/logo-mespin.png")} alt="Mespín — Chamas com Alma" />
+          </div>
+          <p className="footer__slogan">{STORE_CONFIG.slogan}</p>
+          <p className="footer__description">{footer.description}</p>
         </div>
 
-        <nav className="footer__col" aria-label="Rodapé">
-          <h2>Navegação</h2>
-          <Link to="/">Início</Link>
-          <Link to="/catalogo">Catálogo</Link>
-          {STORE_CONFIG.christmasPageEnabled && <Link to="/natal">Natal</Link>}
-          <button type="button" onClick={() => goToSection("sobre")}>
-            Sobre
-          </button>
-          <button type="button" onClick={() => goToSection("contato")}>
-            Contato
-          </button>
+        <nav className="footer__col footer__nav" aria-labelledby="footer-explore">
+          <h2 id="footer-explore" className="footer__title">
+            Explore
+          </h2>
+          <ul>
+            <li>
+              <Link to="/">Início</Link>
+            </li>
+            <li>
+              <Link to="/catalogo">Catálogo</Link>
+            </li>
+            {STORE_CONFIG.christmasPageEnabled && (
+              <li>
+                <Link to="/natal">Natal</Link>
+              </li>
+            )}
+            <li>
+              <Link to="/" state={{ scrollTo: "sobre" }}>
+                Sobre
+              </Link>
+            </li>
+            <li>
+              <Link to="/" state={{ scrollTo: "contato" }}>
+                Contato
+              </Link>
+            </li>
+          </ul>
         </nav>
 
-        <div className="footer__col">
-          <h2>Atendimento</h2>
-          <a href={storeWhatsAppUrl()} target="_blank" rel="noopener noreferrer">
-            <MessageCircle size={16} aria-hidden="true" /> WhatsApp {STORE_CONFIG.whatsappDisplay}
-          </a>
-          <a href={STORE_CONFIG.instagram} target="_blank" rel="noopener noreferrer">
-            <Instagram size={16} aria-hidden="true" /> {STORE_CONFIG.instagramHandle}
-          </a>
-          <p className="footer__note">
-            Pedidos finalizados pelo WhatsApp. Frete, disponibilidade e pagamento são confirmados no atendimento.
-          </p>
+        <div className="footer__col footer__contact">
+          <h2 className="footer__title">Fale com a Mespín</h2>
+          <ul className="footer__channels">
+            <li>
+              <a
+                href={storeWhatsAppUrl(footer.contactMessage)}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <WhatsAppIcon className="footer__icon" />
+                <span>WhatsApp {STORE_CONFIG.whatsappDisplay}</span>
+              </a>
+            </li>
+            <li>
+              <a href={STORE_CONFIG.instagram} target="_blank" rel="noopener noreferrer">
+                <Instagram className="footer__icon" aria-hidden="true" />
+                <span>{STORE_CONFIG.instagramHandle}</span>
+              </a>
+            </li>
+          </ul>
+          <p className="footer__order-info">{footer.orderInfo}</p>
         </div>
       </div>
-      <div className="footer__legal">
-        © {new Date().getFullYear()} {STORE_CONFIG.name} — {STORE_CONFIG.slogan}. Todos os direitos reservados.
+
+      <div className="footer__bottom container">
+        <p className="footer__copyright">
+          © {new Date().getFullYear()} {STORE_CONFIG.name} — {STORE_CONFIG.slogan}. Todos os direitos reservados.
+        </p>
+        <div className="footer__cta-area">
+          <p className="footer__crafted">
+            <Leaf size={22} strokeWidth={1.4} aria-hidden="true" />
+            <span>{footer.craftedMessage}</span>
+          </p>
+          <a
+            className="footer__button"
+            href={storeWhatsAppUrl(footer.buttonMessage)}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <WhatsAppIcon className="footer__button-icon" />
+            Fale no WhatsApp
+          </a>
+        </div>
       </div>
     </footer>
   );

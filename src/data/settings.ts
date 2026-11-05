@@ -20,6 +20,16 @@ export const STORE_CONFIG = {
 
   defaultWhatsAppMessage: "Olá! Gostaria de saber mais sobre os produtos da Mespín. 🕯️",
 
+  footer: {
+    description: "Aromas artesanais para transformar seus momentos.",
+    orderInfo:
+      "Pedidos finalizados pelo WhatsApp. Frete, disponibilidade e pagamento são confirmados no atendimento.",
+    craftedMessage: "Feito com carinho",
+    contactMessage:
+      "Olá! Conheci a Mespín pelo site e gostaria de mais informações sobre os produtos.",
+    buttonMessage: "Olá! Gostaria de conhecer melhor os produtos da Mespín."
+  },
+
   topBarMessages: [
     { icon: "truck", text: "Frete para todo o Brasil" },
     { icon: "gift", text: "Embalagem especial para presente" },
