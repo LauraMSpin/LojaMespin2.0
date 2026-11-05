@@ -1,6 +1,5 @@
-.categories {
-  padding-top: 28px;
-  padding-bottom: 28px;
+.categories.container {
+  padding-top: 52px;
 }
 
 .categories__list {
@@ -64,9 +63,8 @@
 }
 
 @media (max-width: 600px) {
-  .categories {
-    padding-top: 18px;
-    padding-bottom: 14px;
+  .categories.container {
+    padding-top: 32px;
   }
 
   .categories__circle {

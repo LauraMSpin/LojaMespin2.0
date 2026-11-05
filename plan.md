@@ -968,7 +968,7 @@ Estas decisões complementam e, em caso de conflito, prevalecem sobre as seçõe
 7. **Personalização por produto:** `customization: { fields: ["labelName" | "giftMessage" | "notes"] }` (ausente = sem personalização).
 8. **Mensagem WhatsApp:** cada linha de aroma no formato `- Aroma: N unidade(s)`; produtos sem aroma listam `- Quantidade: N`. Frete sempre "A combinar".
 9. **Frete:** barra superior mantém "Frete para todo o Brasil"; o pedido informa "A combinar".
-10. **WhatsApp:** `5531984840078`. Repositório: `https://github.com/LauraMSpin/LojaMespin2.0.git` (`base` do Vite: `/LojaMespin2.0/`).
+10. **WhatsApp:** `5531984840078`. Repositório: `https://github.com/LauraMSpin/LojaMespin2.0.git`. Domínio: `mespin.com.br` (`base` do Vite: `/`).
 11. **CEP:** validação apenas de formato (8 dígitos), sem API externa.
 12. **Fontes:** Cormorant Garamond e Lato hospedadas no projeto (pacotes `@fontsource`).
 13. **Ícones:** Lucide React, inclusive nas categorias circulares.
