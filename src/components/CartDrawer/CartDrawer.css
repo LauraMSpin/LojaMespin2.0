@@ -122,6 +122,35 @@
   overflow-wrap: anywhere;
 }
 
+.cart-line__type {
+  display: inline-block;
+  margin: 2px 0 4px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--tan-soft);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--sienna);
+}
+
+.cart-line__edit {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--tan);
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.cart-line__edit:hover {
+  background: var(--cream);
+}
+
 .cart-line__foot {
   display: flex;
   align-items: center;

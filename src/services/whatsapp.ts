@@ -1,7 +1,8 @@
 import { STORE_CONFIG } from "../data/settings";
-import type { CartItemDetail, CustomerData, Product } from "../types";
+import type { CartItemDetail, CustomerData, CustomOrderDetail, Product } from "../types";
 import { customizationEntries } from "./cart";
-import { formatPrice } from "../utils/format";
+import { customHasPending, customTotalCents, LABEL_FIELD_INFO, toCents } from "./customOrders";
+import { formatCents, formatPrice } from "../utils/format";
 
 export function onlyDigits(value: string): string {
   return value.replace(/\D/g, "");
@@ -64,36 +65,112 @@ function groupDetails(details: CartItemDetail[]): OrderGroup[] {
 export function buildOrderMessage(
   customer: CustomerData,
   details: CartItemDetail[],
-  total: number
+  total: number,
+  customOrders: CustomOrderDetail[] = []
 ): string {
+  const hasStandard = details.length > 0;
+  const hasCustom = customOrders.length > 0;
   const lines: string[] = [];
-  lines.push("Olá! Gostaria de realizar um pedido na Mespín! 🕯️", "");
+
+  if (hasCustom && hasStandard) {
+    lines.push("Olá! Gostaria de realizar um pedido e solicitar orçamento de produtos personalizados na Mespín! 🕯️", "");
+  } else if (hasCustom) {
+    lines.push("Olá! Gostaria de solicitar um orçamento de produtos personalizados da Mespín! 🕯️", "");
+  } else {
+    lines.push("Olá! Gostaria de realizar um pedido na Mespín! 🕯️", "");
+  }
   lines.push("*DADOS DO CLIENTE*", "");
   lines.push(`Nome: ${customer.name.trim()}`);
   lines.push(`CEP: ${formatCep(customer.cep)}`, "");
-  lines.push("*MEU PEDIDO*", "");
 
-  groupDetails(details).forEach((group, index) => {
-    lines.push(`${index + 1}. ${group.product.name}`);
-    for (const entry of group.entries) {
-      lines.push(
-        entry.line.aroma
-          ? `- ${entry.line.aroma}: ${unitsText(entry.line.quantity)}`
-          : `- Quantidade: ${entry.line.quantity}`
-      );
-    }
-    const custom = customizationEntries(group.entries[0].line.customization);
-    for (const c of custom) lines.push(`- ${c.label}: ${c.value}`);
-    const groupTotal = group.entries.reduce((sum, e) => sum + e.subtotal, 0);
-    lines.push(`Valor: ${formatPrice(groupTotal)}`, "");
-  });
+  if (hasStandard) {
+    lines.push("*MEU PEDIDO*", "");
+    groupDetails(details).forEach((group, index) => {
+      lines.push(`${index + 1}. ${group.product.name}`);
+      for (const entry of group.entries) {
+        lines.push(
+          entry.line.aroma
+            ? `- ${entry.line.aroma}: ${unitsText(entry.line.quantity)}`
+            : `- Quantidade: ${entry.line.quantity}`
+        );
+      }
+      const custom = customizationEntries(group.entries[0].line.customization);
+      for (const c of custom) lines.push(`- ${c.label}: ${c.value}`);
+      const groupTotal = group.entries.reduce((sum, e) => sum + e.subtotal, 0);
+      lines.push(`Valor: ${formatPrice(groupTotal)}`, "");
+    });
+  }
+
+  if (hasCustom) {
+    lines.push("*PRODUTOS PERSONALIZADOS*", "");
+    customOrders.forEach((order, index) => lines.push(...customOrderLines(order, index + 1), ""));
+  }
 
   lines.push("*RESUMO*", "");
-  lines.push(`Subtotal: ${formatPrice(total)}`);
+  if (!hasCustom) {
+    lines.push(`Subtotal: ${formatPrice(total)}`);
+    lines.push(`Frete: ${STORE_CONFIG.freightLabel}`, "");
+    lines.push(`*TOTAL DOS PRODUTOS: ${formatPrice(total)}*`, "");
+    lines.push("Aguardo as informações para finalizar a compra. Obrigada!");
+    return lines.join("\n");
+  }
+
+  const customCents = customTotalCents(customOrders);
+  const estimate = customHasPending(customOrders);
+  if (hasStandard) lines.push(`Subtotal dos produtos: ${formatPrice(total)}`);
+  lines.push(
+    `Subtotal estimado dos personalizados: ${estimate ? "a partir de " : ""}${formatCents(customCents)}`
+  );
   lines.push(`Frete: ${STORE_CONFIG.freightLabel}`, "");
-  lines.push(`*TOTAL DOS PRODUTOS: ${formatPrice(total)}*`, "");
-  lines.push("Aguardo as informações para finalizar a compra. Obrigada!");
+  const grand = toCents(total) + customCents;
+  lines.push(`*TOTAL ESTIMADO: ${estimate ? "a partir de " : ""}${formatCents(grand)}*`, "");
+  lines.push("Gostaria de receber informações sobre prazo de produção, frete e aprovação da arte.");
+  lines.push("Obrigada!");
   return lines.join("\n");
+}
+
+function customOrderLines(order: CustomOrderDetail, index: number): string[] {
+  const { product, line } = order;
+  const out: string[] = [`${index}. ${product.name}`];
+
+  if (product.kind === "box") {
+    out.push(`- Quantidade de caixas: ${line.units[0]?.quantity ?? 0}`);
+    out.push("- Itens da caixa:");
+    for (const item of order.boxItems) {
+      const aroma = item.aroma ? ` (${item.aroma})` : "";
+      const price = item.priceCents === null ? "valor a combinar" : formatCents(item.priceCents * item.quantity);
+      out.push(`  • ${item.quantity}x ${item.name}${aroma} — ${price}`);
+    }
+  } else {
+    for (const unit of line.units) {
+      out.push(unit.aroma ? `- ${unit.aroma}: ${unitsText(unit.quantity)}` : `- Quantidade: ${unit.quantity}`);
+    }
+    if (line.units.length > 1) out.push(`- Quantidade total: ${unitsText(order.totalQuantity)}`);
+  }
+
+  for (const field of ["names", "date", "message"] as const) {
+    const value = line.label[field];
+    if (value) out.push(`- ${LABEL_FIELD_INFO[field].label}: ${value}`);
+  }
+  if (line.packaging) out.push(`- Embalagem: ${line.packaging}`);
+  if (line.hasReference) out.push("- Tenho uma imagem ou referência para enviar pelo WhatsApp.");
+  if (line.notes) out.push(`- Observações: ${line.notes}`);
+
+  if (order.unitCents === null) {
+    out.push("Valor: solicitar orçamento");
+    return out;
+  }
+  const prefix = order.isFrom ? "a partir de " : "";
+  out.push(`Preço ${product.kind === "box" ? "da caixa" : "unitário"}: ${prefix}${formatCents(order.unitCents)}`);
+  if (order.discountPercent > 0 && order.finalUnitCents !== null) {
+    out.push(`Desconto: ${order.discountPercent}%`);
+    out.push(`Preço unitário com desconto: ${formatCents(order.finalUnitCents)}`);
+  }
+  if (order.pendingItems.length > 0) {
+    out.push(`Itens com valor a combinar: ${order.pendingItems.join(", ")}`);
+  }
+  out.push(`Subtotal estimado: ${prefix}${formatCents(order.subtotalCents ?? 0)}`);
+  return out;
 }
 
 export function buildWhatsAppUrl(number: string, message: string): string | null {

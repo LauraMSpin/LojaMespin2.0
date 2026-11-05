@@ -35,6 +35,29 @@
   cursor: not-allowed;
 }
 
+.stepper__input {
+  width: 60px;
+  height: 36px;
+  border: 0;
+  background: transparent;
+  text-align: center;
+  font-weight: 700;
+  color: var(--brown);
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.stepper--sm .stepper__input {
+  width: 52px;
+  height: 30px;
+}
+
+.stepper__input::-webkit-outer-spin-button,
+.stepper__input::-webkit-inner-spin-button {
+  margin: 0;
+  -webkit-appearance: none;
+}
+
 .stepper__value {
   min-width: 32px;
   text-align: center;

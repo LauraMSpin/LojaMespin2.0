@@ -173,7 +173,7 @@
   }
 
   .site-nav--mobile.is-open {
-    max-height: 340px;
+    max-height: 400px;
     border-top: 1px solid var(--line);
   }
 

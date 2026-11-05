@@ -1,10 +1,12 @@
-import { ArrowLeft, MessageCircle, Trash2, X } from "lucide-react";
+import { ArrowLeft, MessageCircle, Pencil, Trash2, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
 import { STORE_CONFIG } from "../../data/settings";
+import { useUI } from "../../context/UIContext";
 import { useCart } from "../../hooks/useCart";
 import { useDialogBehavior } from "../../hooks/useDialogBehavior";
 import { customizationEntries } from "../../services/cart";
+import { LABEL_FIELD_INFO } from "../../services/customOrders";
 import {
   buildOrderMessage,
   buildWhatsAppUrl,
@@ -12,8 +14,8 @@ import {
   validateCustomer,
   type CustomerErrors
 } from "../../services/whatsapp";
-import type { CartItemDetail, CustomerData } from "../../types";
-import { formatPrice } from "../../utils/format";
+import type { CartItemDetail, CustomerData, CustomOrderDetail } from "../../types";
+import { formatCents, formatPrice } from "../../utils/format";
 import ProductImage from "../ProductImage/ProductImage";
 import QuantityStepper from "../QuantityStepper/QuantityStepper";
 import "./CartDrawer.css";
@@ -95,8 +97,156 @@ function ReviewList({ items }: { items: CartItemDetail[] }) {
   );
 }
 
+const unitWord = (n: number) => (n === 1 ? "unidade" : "unidades");
+
+/** Linhas descritivas da encomenda (aromas, textos, referência), usadas no carrinho e no resumo. */
+function customDescription(order: CustomOrderDetail): string[] {
+  const { line, product } = order;
+  const out: string[] = [];
+  if (product.kind === "box") {
+    for (const b of order.boxItems) {
+      out.push(`${b.quantity}x ${b.name}${b.aroma ? ` (${b.aroma})` : ""}`);
+    }
+  } else {
+    for (const u of line.units) out.push(u.aroma ? `${u.aroma}: ${u.quantity} ${unitWord(u.quantity)}` : "");
+  }
+  for (const field of ["names", "date", "message"] as const) {
+    if (line.label[field]) out.push(`${LABEL_FIELD_INFO[field].label}: ${line.label[field]}`);
+  }
+  if (line.packaging) out.push(`Embalagem: ${line.packaging}`);
+  if (line.hasReference) out.push("Referência a enviar pelo WhatsApp");
+  if (line.notes) out.push(`Observações: ${line.notes}`);
+  return out.filter(Boolean);
+}
+
+function customPriceText(order: CustomOrderDetail): string {
+  if (order.subtotalCents === null) return "Solicite um orçamento";
+  return `${order.isFrom ? "a partir de " : ""}${formatCents(order.subtotalCents)}`;
+}
+
+function CustomLineRow({ order }: { order: CustomOrderDetail }) {
+  const { removeCustom, closeCart } = useCart();
+  const { openCustom } = useUI();
+  const { product, line } = order;
+  const qtyLabel =
+    product.kind === "box"
+      ? `${order.totalQuantity} ${order.totalQuantity === 1 ? "caixa" : "caixas"}`
+      : `${order.totalQuantity} ${unitWord(order.totalQuantity)}`;
+  return (
+    <li className="cart-line">
+      <div className="cart-line__image">
+        <ProductImage src={product.image} alt={product.name} />
+      </div>
+      <div className="cart-line__body">
+        <div className="cart-line__head">
+          <h3>{product.name}</h3>
+          <button
+            type="button"
+            className="cart-line__remove"
+            onClick={() => removeCustom(line.key)}
+            aria-label={`Remover encomenda: ${product.name}`}
+          >
+            <Trash2 size={17} aria-hidden="true" />
+          </button>
+        </div>
+        <p className="cart-line__type">Tipo: Produto sob encomenda</p>
+        <p className="cart-line__meta">{qtyLabel}</p>
+        {customDescription(order).map((text) => (
+          <p key={text} className="cart-line__meta">
+            {text}
+          </p>
+        ))}
+        {order.discountPercent > 0 && order.finalUnitCents !== null && (
+          <p className="cart-line__meta">
+            Desconto de {order.discountPercent}% · {formatCents(order.finalUnitCents)} por unidade
+          </p>
+        )}
+        {order.pendingItems.length > 0 && (
+          <p className="cart-line__meta">Itens com valor a combinar: {order.pendingItems.join(", ")}</p>
+        )}
+        <div className="cart-line__foot">
+          <button
+            type="button"
+            className="cart-line__edit"
+            onClick={() => {
+              closeCart();
+              openCustom(product, line);
+            }}
+          >
+            <Pencil size={14} aria-hidden="true" /> Editar
+          </button>
+          <div className="cart-line__prices">
+            <span className="cart-line__unit">valor estimado</span>
+            <strong>{customPriceText(order)}</strong>
+          </div>
+        </div>
+      </div>
+    </li>
+  );
+}
+
+function CustomReviewList({ orders }: { orders: CustomOrderDetail[] }) {
+  return (
+    <ul className="review-list">
+      {orders.map((order) => (
+        <li key={order.line.key}>
+          <div>
+            <strong>{order.product.name}</strong>
+            <span>
+              {order.totalQuantity} {order.product.kind === "box" ? (order.totalQuantity === 1 ? "caixa" : "caixas") : unitWord(order.totalQuantity)}
+            </span>
+            {customDescription(order).map((text) => (
+              <span key={text}>{text}</span>
+            ))}
+          </div>
+          <b>{customPriceText(order)}</b>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function CartTotals({ review = false }: { review?: boolean }) {
+  const { items, total, count, customItems, customTotalCents, customHasPending } = useCart();
+  const hasCustom = customItems.length > 0;
+  const grandCents = Math.round(total * 100) + customTotalCents;
+  const prefix = customHasPending ? "a partir de " : "";
+  return (
+    <>
+      {items.length > 0 && (
+        <div className="cart-sum">
+          <span>{review ? "Total dos produtos" : `Subtotal (${count - customItems.length} ${count - customItems.length === 1 ? "item" : "itens"})`}</span>
+          <strong>{formatPrice(total)}</strong>
+        </div>
+      )}
+      {hasCustom && (
+        <div className="cart-sum">
+          <span>Personalizados (estimativa)</span>
+          <strong>
+            {prefix}
+            {formatCents(customTotalCents)}
+          </strong>
+        </div>
+      )}
+      <div className="cart-sum cart-sum--muted">
+        <span>Frete</span>
+        <span>{STORE_CONFIG.freightLabel}</span>
+      </div>
+      {hasCustom && (
+        <div className="cart-sum">
+          <span>Total estimado</span>
+          <strong>
+            {prefix}
+            {formatCents(grandCents)}
+          </strong>
+        </div>
+      )}
+    </>
+  );
+}
+
 export default function CartDrawer() {
-  const { isOpen, closeCart, items, count, total, clearCart } = useCart();
+  const { isOpen, closeCart, items, customItems, isEmpty, total, clearCart } = useCart();
   const panelRef = useRef<HTMLElement>(null);
   const [step, setStep] = useState<Step>("cart");
   const [customer, setCustomer] = useState<CustomerData>({ name: "", cep: "" });
@@ -113,12 +263,12 @@ export default function CartDrawer() {
   }, [isOpen]);
 
   useEffect(() => {
-    if (items.length === 0 && (step === "identify" || step === "review")) setStep("cart");
-  }, [items.length, step]);
+    if (isEmpty && (step === "identify" || step === "review")) setStep("cart");
+  }, [isEmpty, step]);
 
   const message = useMemo(
-    () => (items.length ? buildOrderMessage(customer, items, total) : ""),
-    [customer, items, total]
+    () => (isEmpty ? "" : buildOrderMessage(customer, items, total, customItems)),
+    [customer, items, total, customItems, isEmpty]
   );
   const whatsappUrl = useMemo(() => buildWhatsAppUrl(STORE_CONFIG.whatsapp, message), [message]);
 
@@ -175,7 +325,7 @@ export default function CartDrawer() {
 
         {step === "cart" && (
           <>
-            {items.length === 0 ? (
+            {isEmpty ? (
               <div className="cart-empty">
                 <p>Seu carrinho está vazio.</p>
                 <Link to="/catalogo" className="btn btn--primary" onClick={closeCart}>
@@ -188,16 +338,12 @@ export default function CartDrawer() {
                   {items.map((item) => (
                     <CartLineRow key={item.line.key} item={item} />
                   ))}
+                  {customItems.map((order) => (
+                    <CustomLineRow key={order.line.key} order={order} />
+                  ))}
                 </ul>
                 <footer className="cart-panel__footer">
-                  <div className="cart-sum">
-                    <span>Subtotal ({count} {count === 1 ? "item" : "itens"})</span>
-                    <strong>{formatPrice(total)}</strong>
-                  </div>
-                  <div className="cart-sum cart-sum--muted">
-                    <span>Frete</span>
-                    <span>{STORE_CONFIG.freightLabel}</span>
-                  </div>
+                  <CartTotals />
                   <button type="button" className="btn btn--primary" onClick={() => setStep("identify")}>
                     Finalizar pedido
                   </button>
@@ -276,23 +422,24 @@ export default function CartDrawer() {
                 <p>{customer.name.trim()}</p>
                 <p>CEP {formatCep(customer.cep)}</p>
               </section>
-              <section>
-                <h3>Produtos</h3>
-                <ReviewList items={items} />
-              </section>
+              {items.length > 0 && (
+                <section>
+                  <h3>Produtos</h3>
+                  <ReviewList items={items} />
+                </section>
+              )}
+              {customItems.length > 0 && (
+                <section>
+                  <h3>Encomendas personalizadas</h3>
+                  <CustomReviewList orders={customItems} />
+                </section>
+              )}
               <p className="cart-review__note">
-                Esta é uma solicitação de pedido. Frete, disponibilidade final e pagamento serão confirmados no atendimento pelo WhatsApp.
+                Esta é uma solicitação de {customItems.length > 0 ? "pedido e orçamento" : "pedido"}. Frete, disponibilidade final, arte, prazo e pagamento serão confirmados no atendimento pelo WhatsApp.
               </p>
             </div>
             <footer className="cart-panel__footer">
-              <div className="cart-sum">
-                <span>Total dos produtos</span>
-                <strong>{formatPrice(total)}</strong>
-              </div>
-              <div className="cart-sum cart-sum--muted">
-                <span>Frete</span>
-                <span>{STORE_CONFIG.freightLabel}</span>
-              </div>
+              <CartTotals review />
               {sendError && <p className="cart-form__error" role="alert">{sendError}</p>}
               <button type="button" className="btn btn--whatsapp" onClick={sendToWhatsApp}>
                 <MessageCircle size={18} aria-hidden="true" /> Enviar pedido pelo WhatsApp

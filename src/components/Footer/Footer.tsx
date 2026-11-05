@@ -1,6 +1,7 @@
 import { Instagram, Leaf } from "lucide-react";
 import { Link } from "react-router-dom";
 import { STORE_CONFIG } from "../../data/settings";
+import { CUSTOM_PAGE } from "../../data/customPage";
 import { storeWhatsAppUrl } from "../../services/whatsapp";
 import { asset } from "../../utils/format";
 import WhatsAppIcon from "../Icons/WhatsAppIcon";
@@ -35,6 +36,11 @@ export default function Footer() {
             <li>
               <Link to="/catalogo">Catálogo</Link>
             </li>
+            {CUSTOM_PAGE.enabled && (
+              <li>
+                <Link to="/personalizados">Personalizados</Link>
+              </li>
+            )}
             {STORE_CONFIG.christmasPageEnabled && (
               <li>
                 <Link to="/natal">Natal</Link>

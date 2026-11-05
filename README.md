@@ -16,8 +16,10 @@ npm run preview    # testa o build localmente
 
 | O que | Arquivo |
 |---|---|
-| WhatsApp, Instagram, textos institucionais, barra superior, slides da home, página de Natal | `src/data/settings.ts` |
+| WhatsApp, Instagram, textos institucionais, barra superior, slides da home, página de Natal, rodapé | `src/data/settings.ts` |
 | Produtos | `src/data/products.ts` |
+| Produtos personalizados (sob encomenda) | `src/data/customProducts.ts` |
+| Página Personalizados (banner, galeria, FAQ) | `src/data/customPage.ts` |
 | Categorias | `src/data/categories.ts` |
 | Imagens | `public/assets/` (originais em `Assets/`) |
 
@@ -58,6 +60,46 @@ Edite `src/data/products.ts` e copie um item existente:
 1. Salve a foto otimizada (JPG, até ~1200 px de largura) em `public/assets/products/`.
 2. Aponte `image` do produto para `assets/products/nome-do-arquivo.jpg`.
 3. Banners dos slides ficam em `public/assets/banners/` e são configurados em `HERO_SLIDES` (`settings.ts`).
+
+### Cadastrar um produto personalizado (sob encomenda)
+
+Edite `src/data/customProducts.ts`:
+
+```ts
+{
+  id: "latinhas-personalizadas",     // único
+  name: "Latinhas Personalizadas",
+  description: "...",
+  image: "assets/personalizados/minha-foto.jpg",   // opcional (sem imagem = placeholder)
+  kind: "unit",                      // "unit" = itens por aroma | "box" = caixa montada pelo cliente
+  available: true,
+  minimumQuantity: 10,
+  minimumScope: "perAroma",          // "perAroma" = mínimo para cada aroma | "total" = mínimo do pedido
+  quantityStep: 1,                   // incremento permitido
+  basePrice: 6,                      // reais por unidade; null = "Solicite um orçamento"
+  priceFrom: false,                  // true = exibe "A partir de" (ex.: caixa)
+  discountTiers: [                   // só cadastre descontos confirmados; [] = sem desconto
+    { minQuantity: 50, discount: 5 },
+    { minQuantity: 100, discount: 10 }
+  ],
+  options: {
+    aromas: ["Lavanda", "Bambu"],    // [] = sem escolha de aroma
+    labelFields: ["names", "date", "message"],  // campos de texto da etiqueta
+    packaging: true,
+    referenceImage: true,            // "Tenho uma imagem ou referência para enviar"
+    notes: true
+  },
+  productionTime: "15 dias úteis",   // opcional; sem valor = "a confirmar pelo atendimento"
+  featured: true,
+  sortOrder: 1
+}
+```
+
+- O desconto usa a **maior faixa aplicável** à quantidade total (não soma faixas). Os cálculos são feitos em centavos.
+- O limite de unidades por encomenda (`maxQuantity`) e o teto de desconto estão em `CUSTOM_RULES`, no mesmo arquivo.
+- **Caixa personalizada** (`kind: "box"`): o cliente escolhe itens do catálogo (exceto kits) e os outros personalizados. O valor da caixa é `basePrice` + soma dos itens. Item sem preço entra como "valor a combinar".
+- Banner, galeria, passo a passo, perguntas frequentes e destaque da home ficam em `src/data/customPage.ts`. Fotos em `public/assets/personalizados/` (originais em `Assets/personalizados/`).
+- Encomendas personalizadas ficam no mesmo carrinho dos produtos comuns, identificadas como "Produto sob encomenda", e seguem na mesma mensagem do WhatsApp, em seção própria.
 
 ## Publicar no GitHub Pages
 

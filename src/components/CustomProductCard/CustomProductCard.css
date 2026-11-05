@@ -1,0 +1,41 @@
+.custom-card__badge {
+  background: var(--sienna);
+}
+
+.custom-card__facts {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 10px;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.custom-card__facts li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.custom-card__facts svg {
+  flex-shrink: 0;
+  color: var(--olive);
+}
+
+.custom-card__facts .custom-card__min {
+  font-weight: 700;
+  color: var(--brown);
+}
+
+.custom-card .product-card__btn {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.custom-card .product-card__price {
+  font-size: 1.1rem;
+}
+
+.custom-card .product-card__body {
+  padding-top: 16px;
+}

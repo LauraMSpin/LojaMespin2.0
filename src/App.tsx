@@ -11,6 +11,8 @@ import { CartProvider } from "./context/CartContext";
 import { UIProvider } from "./context/UIContext";
 import Catalog from "./pages/Catalog/Catalog";
 import Christmas from "./pages/Christmas/Christmas";
+import Custom from "./pages/Custom/Custom";
+import CustomProductModal from "./components/CustomProductModal/CustomProductModal";
 import Home from "./pages/Home/Home";
 import NotFound from "./pages/NotFound/NotFound";
 
@@ -37,6 +39,7 @@ export default function App() {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/catalogo" element={<Catalog />} />
+              <Route path="/personalizados" element={<Custom />} />
               <Route path="/natal" element={<Christmas />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
@@ -44,6 +47,7 @@ export default function App() {
           <Footer />
           <WhatsAppButton />
           <ProductModal />
+          <CustomProductModal />
           <CartDrawer />
           <Toast />
         </UIProvider>

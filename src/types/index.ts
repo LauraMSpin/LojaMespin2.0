@@ -64,6 +64,96 @@ export interface CustomerData {
   cep: string;
 }
 
+export type CustomLabelField = "names" | "date" | "message";
+
+export interface CustomDiscountTier {
+  minQuantity: number;
+  /** Percentual de desconto (ex.: 10 = 10%). */
+  discount: number;
+}
+
+export interface CustomProduct {
+  id: string;
+  name: string;
+  description: string;
+  /** Caminho relativo a `public/`. Vazio = placeholder de marca. */
+  image?: string;
+  gallery?: string[];
+  /** "unit": itens por aroma. "box": caixa montada com itens escolhidos pelo cliente. */
+  kind: "unit" | "box";
+  available: boolean;
+  minimumQuantity: number;
+  /** "perAroma": o mínimo vale para cada aroma escolhido. "total": vale para o total. */
+  minimumScope: "perAroma" | "total";
+  quantityStep: number;
+  /** Preço unitário em reais. `null` = "Solicite um orçamento". */
+  basePrice: number | null;
+  /** Exibe "A partir de" (ex.: caixa, cujo valor soma os itens). */
+  priceFrom?: boolean;
+  discountTiers: CustomDiscountTier[];
+  options: {
+    aromas: string[];
+    labelFields: CustomLabelField[];
+    packaging: boolean;
+    referenceImage: boolean;
+    notes: boolean;
+  };
+  /** Ex.: "15 dias úteis". Vazio = "a confirmar pelo atendimento". */
+  productionTime?: string;
+  featured: boolean;
+  sortOrder: number;
+}
+
+export type CustomLabel = Partial<Record<CustomLabelField, string>>;
+
+export interface CustomUnit {
+  aroma: string | null;
+  quantity: number;
+}
+
+export interface BoxItem {
+  source: "catalog" | "custom";
+  refId: string;
+  aroma: string | null;
+  quantity: number;
+}
+
+/** Encomenda personalizada no carrinho; cada configuração é um item independente. */
+export interface CustomLine {
+  key: string;
+  productId: string;
+  units: CustomUnit[];
+  label: CustomLabel;
+  packaging: string;
+  hasReference: boolean;
+  notes: string;
+  boxItems: BoxItem[];
+}
+
+export interface CustomBoxItemDetail {
+  name: string;
+  aroma: string | null;
+  quantity: number;
+  priceCents: number | null;
+}
+
+export interface CustomOrderDetail {
+  line: CustomLine;
+  product: CustomProduct;
+  totalQuantity: number;
+  /** Preço unitário (ou da caixa) antes do desconto. */
+  unitCents: number | null;
+  discountPercent: number;
+  finalUnitCents: number | null;
+  subtotalCents: number | null;
+  savingsCents: number;
+  /** Valor exibido como "a partir de". */
+  isFrom: boolean;
+  boxItems: CustomBoxItemDetail[];
+  /** Itens da caixa sem preço cadastrado (valor a combinar). */
+  pendingItems: string[];
+}
+
 export type SlideAction =
   | { type: "anchor"; id: string }
   | { type: "route"; to: string }

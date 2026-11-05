@@ -2,6 +2,7 @@ import { Menu, ShoppingCart, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, NavLink, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { STORE_CONFIG } from "../../data/settings";
+import { CUSTOM_PAGE } from "../../data/customPage";
 import { useCart } from "../../hooks/useCart";
 import { asset } from "../../utils/format";
 import { scrollToSection } from "../../utils/scroll";
@@ -56,6 +57,11 @@ export default function Header() {
       <NavLink to="/catalogo" className={navClass}>
         Catálogo
       </NavLink>
+      {CUSTOM_PAGE.enabled && (
+        <NavLink to="/personalizados" className={navClass}>
+          Personalizados
+        </NavLink>
+      )}
       {STORE_CONFIG.christmasPageEnabled && (
         <NavLink to="/natal" className={navClass}>
           Natal

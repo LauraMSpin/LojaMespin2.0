@@ -1,4 +1,5 @@
 import {
+  BadgeCheck,
   Flame,
   Flower2,
   Gift,
@@ -6,12 +7,16 @@ import {
   Heart,
   LayoutGrid,
   Leaf,
+  PenLine,
+  Search,
   ShoppingBag,
   SprayCan,
   TreePine,
   Truck,
   Wind,
   FlaskConical,
+  MessageCircle,
+  Sparkles,
   type LucideProps
 } from "lucide-react";
 import type { ComponentType } from "react";
@@ -29,7 +34,12 @@ const MAP: Record<string, ComponentType<LucideProps>> = {
   leaf: Leaf,
   hand: Hand,
   flower: Flower2,
-  heart: Heart
+  heart: Heart,
+  search: Search,
+  pen: PenLine,
+  chat: MessageCircle,
+  check: BadgeCheck,
+  sparkles: Sparkles
 };
 
 export function Icon({ name, ...props }: { name: string } & LucideProps) {

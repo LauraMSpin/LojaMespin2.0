@@ -8,10 +8,12 @@ import ProductGrid from "../../components/ProductGrid/ProductGrid";
 import Reveal from "../../components/Reveal";
 import SearchBar from "../../components/SearchBar/SearchBar";
 import { CATEGORIES, getCategory } from "../../data/categories";
+import { CUSTOM_PAGE } from "../../data/customPage";
 import { PRODUCTS } from "../../data/products";
 import { STORE_CONFIG } from "../../data/settings";
 import { DEFAULT_FILTERS, filterProducts } from "../../services/catalog";
 import { storeWhatsAppUrl } from "../../services/whatsapp";
+import { asset } from "../../utils/format";
 import { scrollToSection } from "../../utils/scroll";
 import "./Home.css";
 
@@ -77,6 +79,25 @@ export default function Home() {
           </Link>
         </div>
       </section>
+
+      {CUSTOM_PAGE.enabled && (
+        <section className="home-custom container" aria-labelledby="home-custom-title">
+          <Reveal className="home-custom__box">
+            <div className="home-custom__text">
+              <h2 id="home-custom-title">{CUSTOM_PAGE.home.title}</h2>
+              <p>{CUSTOM_PAGE.home.text}</p>
+              <Link to="/personalizados" className="btn btn--outline">
+                {CUSTOM_PAGE.home.ctaLabel}
+              </Link>
+            </div>
+            <div className="home-custom__photos" aria-hidden="true">
+              {CUSTOM_PAGE.home.images.map((image) => (
+                <img key={image} src={asset(image)} alt="" loading="lazy" />
+              ))}
+            </div>
+          </Reveal>
+        </section>
+      )}
 
       <section id="sobre" className="about">
         <Reveal className="about__inner container">
