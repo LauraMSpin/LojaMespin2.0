@@ -6,7 +6,7 @@ Loja virtual estática (React + TypeScript + Vite) da Mespín. Sem backend: o ca
 
 ```bash
 npm install
-npm run dev        # http://localhost:5173/LojaMespin2.0/
+npm run dev        # http://localhost:5173/
 npm test           # testes (carrinho, mensagem do WhatsApp, busca/filtros)
 npm run build      # gera a pasta dist/
 npm run preview    # testa o build localmente
@@ -63,9 +63,20 @@ Edite `src/data/products.ts` e copie um item existente:
 
 1. No repositório, vá em **Settings → Pages** e escolha **Source: GitHub Actions**.
 2. Envie as alterações para a branch `main`; o workflow `.github/workflows/deploy.yml` roda os testes, gera o build e publica.
-3. O site fica em `https://lauramspin.github.io/LojaMespin2.0/`.
+3. O site fica em `https://mespin.com.br/`.
 
-O `base` do Vite (`vite.config.ts`) é `/LojaMespin2.0/`; se o nome do repositório mudar, atualize-o. As rotas usam `HashRouter` (`#/`, `#/catalogo`, `#/natal`), então não é preciso configurar o servidor.
+### Domínio próprio (mespin.com.br)
+
+1. **GitHub:** em **Settings → Pages → Custom domain**, informe `mespin.com.br`, salve e, quando o certificado estiver pronto, marque **Enforce HTTPS**.
+2. **Registro.br** (Editar zona DNS do domínio):
+
+| Tipo | Nome | Valor |
+|---|---|---|
+| A | (raiz, `mespin.com.br`) | `185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153` (um registro para cada IP) |
+| AAAA | (raiz) | `2606:50c0:8000::153`, `2606:50c0:8001::153`, `2606:50c0:8002::153`, `2606:50c0:8003::153` |
+| CNAME | `www` | `lauramspin.github.io.` |
+
+O `base` do Vite (`vite.config.ts`) é `/`, pois o site é servido na raiz do domínio. As rotas usam `HashRouter` (`#/`, `#/catalogo`, `#/natal`), então não é preciso configurar o servidor.
 
 ## Observações
 

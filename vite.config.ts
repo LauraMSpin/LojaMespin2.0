@@ -1,9 +1,9 @@
 import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 
-// "base" deve ser o nome do repositório no GitHub Pages.
+// Domínio próprio (mespin.com.br): o site é servido na raiz, então base = "/".
 export default defineConfig({
-  base: "/LojaMespin2.0/",
+  base: "/",
   plugins: [react()],
   test: {
     environment: "node",
