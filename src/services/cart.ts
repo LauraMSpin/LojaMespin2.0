@@ -108,12 +108,13 @@ export function cartReducer(state: CartLine[], action: CartAction): CartLine[] {
   }
 }
 
-/** Resolve linhas com os dados atuais do catálogo; ignora produtos removidos, esgotados ou sem preço. */
+/** Resolve linhas com os dados atuais do catálogo; ignora produtos removidos, esgotados, sem preço ou kits (têm carrinho próprio). */
 export function getCartDetails(lines: CartLine[], products: Product[]): CartItemDetail[] {
   const details: CartItemDetail[] = [];
   for (const line of lines) {
     const product = products.find((p) => p.id === line.productId);
     if (!product || !product.available || product.price === null) continue;
+    if (product.components && product.components.length > 0) continue;
     details.push({
       line,
       product,

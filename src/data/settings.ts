@@ -16,6 +16,7 @@ export const STORE_CONFIG = {
   christmasPageEnabled: true,
   freightLabel: "A combinar",
   maxQuantityPerLine: 99,
+  maxKitUnits: 10,
   featuredLimit: 8,
 
   defaultWhatsAppMessage: "Olá! Gostaria de saber mais sobre os produtos da Mespín. 🕯️",

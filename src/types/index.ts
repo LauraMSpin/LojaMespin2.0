@@ -8,6 +8,66 @@ export type CategoryId =
 
 export type CustomizationField = "labelName" | "giftMessage" | "notes";
 
+/** Aroma de um componente de kit: o cliente escolhe, o kit já define ou não se aplica. */
+export type KitAroma =
+  | { mode: "choice"; options: string[] }
+  | { mode: "fixed"; value: string }
+  | { mode: "none" };
+
+/** Item que compõe um kit. `quantity` > 1 gera um seletor independente por unidade ("Vela 1", "Vela 2"). */
+export interface KitComponent {
+  id: string;
+  name: string;
+  type: string;
+  quantity: number;
+  description?: string;
+  aroma: KitAroma;
+}
+
+export interface KitSlot {
+  /** `${componentId}:${n}`, estável para o carrinho. */
+  id: string;
+  componentId: string;
+  name: string;
+  type: string;
+  description?: string;
+  aroma: KitAroma;
+}
+
+export interface KitUnit {
+  id: string;
+  /** slotId → aroma escolhido (apenas slots com `mode: "choice"`). */
+  selections: Record<string, string>;
+}
+
+/** Uma adição de kits ao carrinho; cada unidade tem a sua própria configuração. */
+export interface KitGroup {
+  key: string;
+  productId: string;
+  units: KitUnit[];
+}
+
+export interface KitUnitItem {
+  name: string;
+  /** Aroma escolhido ou definido pelo kit; `null` quando o componente não tem aroma. */
+  value: string | null;
+}
+
+export interface KitUnitDetail {
+  unit: KitUnit;
+  /** "Kit 1", "Kit 2"... */
+  label: string;
+  items: KitUnitItem[];
+}
+
+export interface KitGroupDetail {
+  group: KitGroup;
+  product: Product;
+  units: KitUnitDetail[];
+  unitPrice: number;
+  subtotal: number;
+}
+
 export interface Category {
   id: CategoryId;
   /** Nome no plural, usado na navegação por categorias. */
@@ -39,6 +99,8 @@ export interface Product {
   isChristmas: boolean;
   badge?: string;
   customization?: Customization;
+  /** Composição do kit. Quando presente, o produto é um kit com escolha por componente. */
+  components?: KitComponent[];
   sortOrder: number;
 }
 

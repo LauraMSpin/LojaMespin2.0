@@ -7,6 +7,8 @@ import { useCart } from "../../hooks/useCart";
 import { useDialogBehavior } from "../../hooks/useDialogBehavior";
 import { CUSTOMIZATION_LABELS, createLine } from "../../services/cart";
 import { buildConsultMessage, storeWhatsAppUrl } from "../../services/whatsapp";
+import { isKit } from "../../services/kits";
+import KitDialog from "../KitModal/KitModal";
 import type { CustomizationField, CustomizationValues, Product } from "../../types";
 import { formatPrice } from "../../utils/format";
 import ProductImage from "../ProductImage/ProductImage";
@@ -188,7 +190,17 @@ function ProductDialog({ product, onClose }: { product: Product; onClose: () => 
 }
 
 export default function ProductModal() {
-  const { selectedProduct, closeProduct } = useUI();
+  const { selectedProduct, kitEdit, closeProduct } = useUI();
   if (!selectedProduct) return null;
+  if (isKit(selectedProduct)) {
+    return (
+      <KitDialog
+        key={`${selectedProduct.id}-${kitEdit?.group.key ?? "new"}-${kitEdit?.focusUnitId ?? ""}${kitEdit?.addUnit ? "-add" : ""}`}
+        product={selectedProduct}
+        edit={kitEdit}
+        onClose={closeProduct}
+      />
+    );
+  }
   return <ProductDialog key={selectedProduct.id} product={selectedProduct} onClose={closeProduct} />;
 }

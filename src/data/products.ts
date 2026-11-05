@@ -9,6 +9,9 @@ import type { Product } from "../types";
  *   Sem imagem, o site exibe um placeholder da marca.
  * - aromas: lista de aromas. Lista vazia = produto sem escolha de aroma.
  * - customization: { fields: ["labelName", "giftMessage", "notes"] } habilita campos de texto.
+ * - components: composição de um kit (lista de itens). Cada item tem id, name, type, quantity e aroma
+ *   ({ mode: "choice", options: [...] } | { mode: "fixed", value } | { mode: "none" }). quantity 2 gera
+ *   dois seletores independentes (Vela 1, Vela 2). O kit custa o price do produto.
  *
  * Itens marcados com "PENDENTE" ainda aguardam dados oficiais (preço/foto/aromas).
  */
@@ -39,14 +42,22 @@ export const PRODUCTS: Product[] = [
     id: "kit-vela-dupla",
     name: "Kit Vela Dupla",
     category: "kits",
-    description: "Vela em copo patê com 200g aromatizada.",
+    description: "Kit com duas velas aromáticas. Você escolhe o aroma de cada vela.",
     image: "assets/products/kit-vela-dupla.jpg",
     price: 70,
-    aromas: AROMAS_VELAS,
+    aromas: [],
+    components: [
+      {
+        id: "vela",
+        name: "Vela",
+        type: "vela",
+        quantity: 2,
+        aroma: { mode: "choice", options: AROMAS_VELAS }
+      }
+    ],
     available: true,
     featured: true,
     isChristmas: false,
-    customization: { fields: ["giftMessage"] },
     sortOrder: 2
   },
   {
@@ -72,7 +83,6 @@ export const PRODUCTS: Product[] = [
     featured: true,
     isChristmas: true,
     badge: "Natal",
-    customization: { fields: ["giftMessage"] },
     sortOrder: 4
   },
   {
@@ -172,7 +182,6 @@ export const PRODUCTS: Product[] = [
     featured: false,
     isChristmas: true,
     badge: "Natal",
-    customization: { fields: ["giftMessage"] },
     sortOrder: 12
   }
 ];

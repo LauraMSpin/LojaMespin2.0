@@ -1,5 +1,5 @@
 import { STORE_CONFIG } from "../data/settings";
-import type { CartItemDetail, CustomerData, CustomOrderDetail, Product } from "../types";
+import type { CartItemDetail, CustomerData, CustomOrderDetail, KitGroupDetail, Product } from "../types";
 import { customizationEntries } from "./cart";
 import { customHasPending, customTotalCents, LABEL_FIELD_INFO, toCents } from "./customOrders";
 import { formatCents, formatPrice } from "../utils/format";
@@ -66,9 +66,10 @@ export function buildOrderMessage(
   customer: CustomerData,
   details: CartItemDetail[],
   total: number,
-  customOrders: CustomOrderDetail[] = []
+  customOrders: CustomOrderDetail[] = [],
+  kitGroups: KitGroupDetail[] = []
 ): string {
-  const hasStandard = details.length > 0;
+  const hasStandard = details.length > 0 || kitGroups.length > 0;
   const hasCustom = customOrders.length > 0;
   const lines: string[] = [];
 
@@ -85,7 +86,8 @@ export function buildOrderMessage(
 
   if (hasStandard) {
     lines.push("*MEU PEDIDO*", "");
-    groupDetails(details).forEach((group, index) => {
+    const standardGroups = groupDetails(details);
+    standardGroups.forEach((group, index) => {
       lines.push(`${index + 1}. ${group.product.name}`);
       for (const entry of group.entries) {
         lines.push(
@@ -99,6 +101,7 @@ export function buildOrderMessage(
       const groupTotal = group.entries.reduce((sum, e) => sum + e.subtotal, 0);
       lines.push(`Valor: ${formatPrice(groupTotal)}`, "");
     });
+    kitGroups.forEach((kit, index) => lines.push(...kitGroupLines(kit, standardGroups.length + index + 1), ""));
   }
 
   if (hasCustom) {
@@ -127,6 +130,20 @@ export function buildOrderMessage(
   lines.push("Gostaria de receber informações sobre prazo de produção, frete e aprovação da arte.");
   lines.push("Obrigada!");
   return lines.join("\n");
+}
+
+/** Cada kit é descrito unidade por unidade, com os itens e aromas de cada uma. */
+function kitGroupLines(kit: KitGroupDetail, index: number): string[] {
+  const count = kit.units.length;
+  const out: string[] = [`${index}. ${kit.product.name} — ${count} ${count === 1 ? "unidade" : "unidades"}`, ""];
+  for (const unit of kit.units) {
+    out.push(`*${unit.label}*`);
+    for (const item of unit.items) out.push(item.value ? `- ${item.name}: ${item.value}` : `- ${item.name}`);
+    out.push("");
+  }
+  out.push(`Valor unitário do kit: ${formatPrice(kit.unitPrice)}`);
+  out.push(`Valor: ${formatPrice(kit.subtotal)}`);
+  return out;
 }
 
 function customOrderLines(order: CustomOrderDetail, index: number): string[] {

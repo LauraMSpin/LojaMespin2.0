@@ -1,9 +1,23 @@
 import type { Product } from "../types";
 import { normalizeText } from "../utils/format";
 
-/** Produtos com aromas ou personalização exigem escolha antes de ir ao carrinho. */
+/** Produtos com aromas, personalização ou composição (kit) exigem escolha antes de ir ao carrinho. */
 export function requiresSelection(product: Product): boolean {
-  return product.aromas.length > 0 || (product.customization?.fields.length ?? 0) > 0;
+  return (
+    product.aromas.length > 0 ||
+    (product.customization?.fields.length ?? 0) > 0 ||
+    (product.components?.length ?? 0) > 0
+  );
+}
+
+/** Todos os aromas de um produto, inclusive os dos componentes de kits. */
+export function productAromas(product: Product): string[] {
+  const set = new Set(product.aromas);
+  for (const component of product.components ?? []) {
+    if (component.aroma.mode === "choice") component.aroma.options.forEach((o) => set.add(o));
+    else if (component.aroma.mode === "fixed") set.add(component.aroma.value);
+  }
+  return [...set];
 }
 
 export type SortOption = "relevance" | "price-asc" | "price-desc" | "name";
@@ -35,7 +49,7 @@ export const DEFAULT_FILTERS: CatalogFilters = {
 function searchScore(product: Product, categoryName: string, terms: string[]): number {
   const name = normalizeText(product.name);
   const category = normalizeText(categoryName);
-  const aromas = normalizeText(product.aromas.join(" "));
+  const aromas = normalizeText(productAromas(product).join(" "));
   const description = normalizeText(product.description);
   let score = 0;
   for (const term of terms) {

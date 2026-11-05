@@ -101,6 +101,38 @@ Edite `src/data/customProducts.ts`:
 - Banner, galeria, passo a passo, perguntas frequentes e destaque da home ficam em `src/data/customPage.ts`. Fotos em `public/assets/personalizados/` (originais em `Assets/personalizados/`).
 - Encomendas personalizadas ficam no mesmo carrinho dos produtos comuns, identificadas como "Produto sob encomenda", e seguem na mesma mensagem do WhatsApp, em seção própria.
 
+### Cadastrar um kit (produto composto)
+
+Em `src/data/products.ts`, um produto com `components` é tratado como kit. Não é preciso criar componentes React:
+
+```ts
+{
+  id: "kit-vela-dupla",
+  name: "Kit Vela Dupla",
+  category: "kits",
+  price: 70,                         // preço do kit (cada unidade); null = "Sob consulta"
+  aromas: [],
+  components: [
+    {
+      id: "vela",                    // único dentro do kit
+      name: "Vela",                  // com quantity 2 vira "Vela 1" e "Vela 2"
+      type: "vela",
+      quantity: 2,                   // gera um seletor independente por unidade
+      aroma: { mode: "choice", options: ["Lavanda", "Bambu"] }
+    },
+    { id: "difusor", name: "Difusor", type: "difusor", quantity: 1,
+      aroma: { mode: "fixed", value: "Eucalipto" } },   // aroma já definido pelo kit
+    { id: "sache", name: "Sachê", type: "sache", quantity: 1,
+      aroma: { mode: "none" } }                         // item sem aroma
+  ],
+  // ...demais campos do produto (image, available, featured, sortOrder...)
+}
+```
+
+- O cliente escolhe o aroma de **cada item de cada kit** e só consegue adicionar ao carrinho com tudo preenchido. Ao comprar vários kits, cada unidade é configurada separadamente (há "Repetir a configuração do kit anterior" e "Aplicar o Kit 1 a todos").
+- No carrinho e na mensagem do WhatsApp cada unidade aparece com a sua composição. Dá para editar ou remover uma unidade, adicionar outra ao mesmo grupo ou remover o kit inteiro.
+- O limite de kits por compra (`maxKitUnits`, hoje 10) fica em `src/data/settings.ts`.
+
 ## Publicar no GitHub Pages
 
 1. No repositório, vá em **Settings → Pages** e escolha **Source: GitHub Actions**.

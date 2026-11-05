@@ -1,4 +1,4 @@
-import { ArrowLeft, MessageCircle, Pencil, Trash2, X } from "lucide-react";
+import { ArrowLeft, MessageCircle, Pencil, Plus, Trash2, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
 import { STORE_CONFIG } from "../../data/settings";
@@ -14,7 +14,7 @@ import {
   validateCustomer,
   type CustomerErrors
 } from "../../services/whatsapp";
-import type { CartItemDetail, CustomerData, CustomOrderDetail } from "../../types";
+import type { CartItemDetail, CustomerData, CustomOrderDetail, KitGroupDetail } from "../../types";
 import { formatCents, formatPrice } from "../../utils/format";
 import ProductImage from "../ProductImage/ProductImage";
 import QuantityStepper from "../QuantityStepper/QuantityStepper";
@@ -206,16 +206,128 @@ function CustomReviewList({ orders }: { orders: CustomOrderDetail[] }) {
   );
 }
 
+function KitGroupRow({ detail }: { detail: KitGroupDetail }) {
+  const { removeKitUnit, removeKitGroup, closeCart } = useCart();
+  const { openKitEdit } = useUI();
+  const { group, product } = detail;
+  const count = detail.units.length;
+  const atLimit = group.units.length >= STORE_CONFIG.maxKitUnits;
+
+  const edit = (state: { focusUnitId?: string; addUnit?: boolean }) => {
+    closeCart();
+    openKitEdit(product, { group, ...state });
+  };
+
+  return (
+    <li className="cart-line cart-line--kit">
+      <div className="cart-line__image">
+        <ProductImage src={product.image} alt={product.name} />
+      </div>
+      <div className="cart-line__body">
+        <div className="cart-line__head">
+          <h3>
+            {product.name} — {count} {count === 1 ? "unidade" : "unidades"}
+          </h3>
+          <button
+            type="button"
+            className="cart-line__remove"
+            onClick={() => removeKitGroup(group.key)}
+            aria-label={`Remover ${product.name} inteiro (${count} ${count === 1 ? "unidade" : "unidades"})`}
+          >
+            <Trash2 size={17} aria-hidden="true" />
+          </button>
+        </div>
+
+        <ul className="kit-units">
+          {detail.units.map((u) => (
+            <li key={u.unit.id} className="kit-unit">
+              <div className="kit-unit__head">
+                <strong>{u.label}</strong>
+                <span>
+                  <button
+                    type="button"
+                    className="kit-unit__btn"
+                    onClick={() => edit({ focusUnitId: u.unit.id })}
+                    aria-label={`Editar ${u.label} de ${product.name}`}
+                  >
+                    <Pencil size={13} aria-hidden="true" /> Editar
+                  </button>
+                  <button
+                    type="button"
+                    className="kit-unit__btn"
+                    onClick={() => removeKitUnit(group.key, u.unit.id)}
+                    aria-label={`Remover ${u.label} de ${product.name}`}
+                  >
+                    <Trash2 size={13} aria-hidden="true" /> Remover
+                  </button>
+                </span>
+              </div>
+              <ul>
+                {u.items.map((item) => (
+                  <li key={item.name} className="cart-line__meta">
+                    {item.value ? `${item.name}: ${item.value}` : item.name}
+                  </li>
+                ))}
+              </ul>
+            </li>
+          ))}
+        </ul>
+
+        <div className="cart-line__foot">
+          <button
+            type="button"
+            className="cart-line__edit"
+            onClick={() => edit({ addUnit: true })}
+            disabled={atLimit}
+            title={atLimit ? `Máximo de ${STORE_CONFIG.maxKitUnits} kits por compra` : undefined}
+          >
+            <Plus size={14} aria-hidden="true" /> Adicionar unidade
+          </button>
+          <div className="cart-line__prices">
+            <span className="cart-line__unit">{formatPrice(detail.unitPrice)} cada</span>
+            <strong>{formatPrice(detail.subtotal)}</strong>
+          </div>
+        </div>
+      </div>
+    </li>
+  );
+}
+
+function KitReviewList({ kits }: { kits: KitGroupDetail[] }) {
+  return (
+    <ul className="review-list">
+      {kits.map(({ group, product, units, unitPrice, subtotal }) => (
+        <li key={group.key}>
+          <div>
+            <strong>
+              {product.name} — {units.length} {units.length === 1 ? "unidade" : "unidades"}
+            </strong>
+            {units.map((u) => (
+              <span key={u.unit.id}>
+                {u.label}: {u.items.map((i) => (i.value ? `${i.name} ${i.value}` : i.name)).join(" · ")}
+              </span>
+            ))}
+            <span>{formatPrice(unitPrice)} por kit</span>
+          </div>
+          <b>{formatPrice(subtotal)}</b>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 function CartTotals({ review = false }: { review?: boolean }) {
-  const { items, total, count, customItems, customTotalCents, customHasPending } = useCart();
+  const { items, kitItems, total, count, customItems, customTotalCents, customHasPending } = useCart();
   const hasCustom = customItems.length > 0;
+  const hasStandard = items.length > 0 || kitItems.length > 0;
+  const standardCount = count - customItems.length;
   const grandCents = Math.round(total * 100) + customTotalCents;
   const prefix = customHasPending ? "a partir de " : "";
   return (
     <>
-      {items.length > 0 && (
+      {hasStandard && (
         <div className="cart-sum">
-          <span>{review ? "Total dos produtos" : `Subtotal (${count - customItems.length} ${count - customItems.length === 1 ? "item" : "itens"})`}</span>
+          <span>{review ? "Total dos produtos" : `Subtotal (${standardCount} ${standardCount === 1 ? "item" : "itens"})`}</span>
           <strong>{formatPrice(total)}</strong>
         </div>
       )}
@@ -246,7 +358,7 @@ function CartTotals({ review = false }: { review?: boolean }) {
 }
 
 export default function CartDrawer() {
-  const { isOpen, closeCart, items, customItems, isEmpty, total, clearCart } = useCart();
+  const { isOpen, closeCart, items, kitItems, customItems, isEmpty, total, clearCart } = useCart();
   const panelRef = useRef<HTMLElement>(null);
   const [step, setStep] = useState<Step>("cart");
   const [customer, setCustomer] = useState<CustomerData>({ name: "", cep: "" });
@@ -267,8 +379,8 @@ export default function CartDrawer() {
   }, [isEmpty, step]);
 
   const message = useMemo(
-    () => (isEmpty ? "" : buildOrderMessage(customer, items, total, customItems)),
-    [customer, items, total, customItems, isEmpty]
+    () => (isEmpty ? "" : buildOrderMessage(customer, items, total, customItems, kitItems)),
+    [customer, items, total, customItems, kitItems, isEmpty]
   );
   const whatsappUrl = useMemo(() => buildWhatsAppUrl(STORE_CONFIG.whatsapp, message), [message]);
 
@@ -337,6 +449,9 @@ export default function CartDrawer() {
                 <ul className="cart-panel__list">
                   {items.map((item) => (
                     <CartLineRow key={item.line.key} item={item} />
+                  ))}
+                  {kitItems.map((detail) => (
+                    <KitGroupRow key={detail.group.key} detail={detail} />
                   ))}
                   {customItems.map((order) => (
                     <CustomLineRow key={order.line.key} order={order} />
@@ -422,10 +537,11 @@ export default function CartDrawer() {
                 <p>{customer.name.trim()}</p>
                 <p>CEP {formatCep(customer.cep)}</p>
               </section>
-              {items.length > 0 && (
+              {(items.length > 0 || kitItems.length > 0) && (
                 <section>
                   <h3>Produtos</h3>
-                  <ReviewList items={items} />
+                  {items.length > 0 && <ReviewList items={items} />}
+                  {kitItems.length > 0 && <KitReviewList kits={kitItems} />}
                 </section>
               )}
               {customItems.length > 0 && (
