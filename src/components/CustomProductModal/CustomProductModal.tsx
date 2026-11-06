@@ -15,7 +15,7 @@ import {
 } from "../../services/customOrders";
 import type { BoxItem, CustomLabel, CustomLabelField, CustomProduct, CustomLine } from "../../types";
 import { formatCents } from "../../utils/format";
-import ProductImage from "../ProductImage/ProductImage";
+import ProductGallery from "../ProductGallery/ProductGallery";
 import QuantityStepper from "../QuantityStepper/QuantityStepper";
 import { minimumText } from "../CustomProductCard/CustomProductCard";
 import "../ProductModal/ProductModal.css";
@@ -53,11 +53,6 @@ function CustomDialog({
   const hasAromas = aromas.length > 0;
   const perAroma = product.minimumScope === "perAroma";
   const sources = useMemo(() => (isBox ? getBoxSources() : []), [isBox]);
-  const images = useMemo(
-    () => [product.image, ...(product.gallery ?? [])].filter((i): i is string => Boolean(i)),
-    [product]
-  );
-  const [imageIndex, setImageIndex] = useState(0);
 
   const [aromaQty, setAromaQty] = useState<Record<string, number>>(() => {
     const result: Record<string, number> = {};
@@ -137,26 +132,7 @@ function CustomDialog({
           <X size={22} aria-hidden="true" />
         </button>
 
-        <div className="pmodal__media">
-          <div className="pmodal__image">
-            <ProductImage src={images[imageIndex]} alt={product.name} fit="contain" loading="eager" />
-          </div>
-          {images.length > 1 && (
-            <div className="pmodal__thumbs">
-              {images.map((src, i) => (
-                <button
-                  key={src}
-                  type="button"
-                  className={i === imageIndex ? "is-active" : ""}
-                  onClick={() => setImageIndex(i)}
-                  aria-label={`Ver imagem ${i + 1}`}
-                >
-                  <ProductImage src={src} alt="" />
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
+        <ProductGallery image={product.image} gallery={product.gallery} alt={product.name} />
 
         <div className="pmodal__info cmodal__info">
           <span className="pmodal__category">Sob encomenda</span>

@@ -86,9 +86,11 @@
   justify-content: center;
   gap: 8px;
   padding: 0 16px 14px;
+  overflow-x: auto;
 }
 
 .pmodal__thumbs button {
+  flex: none;
   width: 54px;
   height: 54px;
   overflow: hidden;

@@ -16,7 +16,7 @@ import {
 import { buildConsultMessage, storeWhatsAppUrl } from "../../services/whatsapp";
 import type { KitUnit, Product } from "../../types";
 import { formatPrice } from "../../utils/format";
-import ProductImage from "../ProductImage/ProductImage";
+import ProductGallery from "../ProductGallery/ProductGallery";
 import QuantityStepper from "../QuantityStepper/QuantityStepper";
 import "../ProductModal/ProductModal.css";
 import "./KitModal.css";
@@ -35,11 +35,6 @@ export default function KitDialog({ product, edit, onClose }: Props) {
 
   const max = STORE_CONFIG.maxKitUnits;
   const slots = useMemo(() => getSlots(product), [product]);
-  const images = useMemo(
-    () => [product.image, ...(product.gallery ?? [])].filter((i): i is string => Boolean(i)),
-    [product]
-  );
-  const [imageIndex, setImageIndex] = useState(0);
   const category = getCategory(product.category);
   const onRequest = product.price === null;
   const unavailable = !product.available;
@@ -125,26 +120,7 @@ export default function KitDialog({ product, edit, onClose }: Props) {
           <X size={22} aria-hidden="true" />
         </button>
 
-        <div className="pmodal__media">
-          <div className="pmodal__image">
-            <ProductImage src={images[imageIndex]} alt={product.name} fit="contain" loading="eager" />
-          </div>
-          {images.length > 1 && (
-            <div className="pmodal__thumbs">
-              {images.map((src, i) => (
-                <button
-                  key={src}
-                  type="button"
-                  className={i === imageIndex ? "is-active" : ""}
-                  onClick={() => setImageIndex(i)}
-                  aria-label={`Ver imagem ${i + 1}`}
-                >
-                  <ProductImage src={src} alt="" />
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
+        <ProductGallery image={product.image} gallery={product.gallery} alt={product.name} />
 
         <div className="pmodal__info kmodal__info">
           <span className="pmodal__category">{category?.label ?? "Kit"}</span>

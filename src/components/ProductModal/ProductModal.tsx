@@ -1,5 +1,5 @@
 import { MessageCircle, ShoppingCart, X } from "lucide-react";
-import { useMemo, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { getCategory } from "../../data/categories";
 import { STORE_CONFIG } from "../../data/settings";
 import { useUI } from "../../context/UIContext";
@@ -11,7 +11,7 @@ import { isKit } from "../../services/kits";
 import KitDialog from "../KitModal/KitModal";
 import type { CustomizationField, CustomizationValues, Product } from "../../types";
 import { formatPrice } from "../../utils/format";
-import ProductImage from "../ProductImage/ProductImage";
+import ProductGallery from "../ProductGallery/ProductGallery";
 import QuantityStepper from "../QuantityStepper/QuantityStepper";
 import "./ProductModal.css";
 
@@ -32,11 +32,6 @@ function ProductDialog({ product, onClose }: { product: Product; onClose: () => 
   const [aromaQty, setAromaQty] = useState<Record<string, number>>({});
   const [singleQty, setSingleQty] = useState(1);
   const [custom, setCustom] = useState<CustomizationValues>({});
-  const images = useMemo(
-    () => [product.image, ...(product.gallery ?? [])].filter((i): i is string => Boolean(i)),
-    [product]
-  );
-  const [imageIndex, setImageIndex] = useState(0);
 
   const category = getCategory(product.category);
   const unavailable = !product.available;
@@ -73,26 +68,7 @@ function ProductDialog({ product, onClose }: { product: Product; onClose: () => 
           <X size={22} aria-hidden="true" />
         </button>
 
-        <div className="pmodal__media">
-          <div className="pmodal__image">
-            <ProductImage src={images[imageIndex]} alt={product.name} fit="contain" loading="eager" />
-          </div>
-          {images.length > 1 && (
-            <div className="pmodal__thumbs">
-              {images.map((src, i) => (
-                <button
-                  key={src}
-                  type="button"
-                  className={i === imageIndex ? "is-active" : ""}
-                  onClick={() => setImageIndex(i)}
-                  aria-label={`Ver imagem ${i + 1}`}
-                >
-                  <ProductImage src={src} alt="" />
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
+        <ProductGallery image={product.image} gallery={product.gallery} alt={product.name} />
 
         <div className="pmodal__info">
           <span className="pmodal__category">{category?.label ?? product.category}</span>

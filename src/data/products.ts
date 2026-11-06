@@ -32,6 +32,15 @@ const AROMAS_VELAS_NATAL = [
   "Aconchego do Noel"
 ];
 
+const ANIMAIS = [
+  "Elefante",
+  "Leão",
+  "Girafa",
+  "Lulu da Pomerânia",
+  "Shih Tzu",
+  "Ovelha"
+];
+
 export const PRODUCTS: Product[] = [
   {
     id: "vela-aromatica-100g",
@@ -111,10 +120,11 @@ export const PRODUCTS: Product[] = [
     id: "pets-aromáticos",
     name: "Pets Aromáticos",
     category: "velas",
-    description: "Pets aromáticos para decorar e perfumar o ambiente.",
+    description: "Pets aromáticos de Menta & Flor de Lótus para decorar e perfumar o ambiente.",
     price: 18,
-    aromas: ["Menta & Flor de Lótus"],
+    aromas: ANIMAIS,
     image: "assets/products/produto-006.jpg",
+    gallery: ["assets/products/produto-006-2.jpg"],
     available: true,
     featured: true,
     isChristmas: false,
@@ -128,6 +138,7 @@ export const PRODUCTS: Product[] = [
     price: 10, 
     aromas: AROMAS_VELAS_NATAL,
     image: "assets/products/produto-007.jpg",
+    gallery: ["assets/products/produto-007-2.jpg"],
     available: true,
     featured: false,
     isChristmas: true,
@@ -149,8 +160,8 @@ export const PRODUCTS: Product[] = [
     sortOrder: 8
   },
     {
-    id: "pingente-natal-rena",
-    name: "Pingente Natal Rena",
+    id: "pingente-natal-floco-neve",
+    name: "Pingente Natal Floco de Neve",
     category: "velas",
     description: "Pingente aromatizador com fragrância natalina.",
     price: 16,
@@ -168,7 +179,7 @@ export const PRODUCTS: Product[] = [
     category: "velas",
     description: "Pingente aromatizador com fragrância natalina.",
     price: 16,
-    aromas: AROMAS_VELAS_NATAL,
+    aromas: ["Especiarias de Natal"],
     image: "assets/products/produto-010.jpg",
     available: true,
     featured: false,
@@ -182,7 +193,7 @@ export const PRODUCTS: Product[] = [
     category: "velas",
     description: "Trio de Pingentes aromatizadores com fragrância natalina.",
     price: 42,
-    aromas: AROMAS_VELAS_NATAL,
+    aromas: [],
     image: "assets/products/produto-011.jpg",
     available: true,
     featured: false,
@@ -198,6 +209,7 @@ export const PRODUCTS: Product[] = [
     price: 20,
     aromas: AROMAS_VELAS_NATAL,
     image: "assets/products/produto-012.jpg",
+    gallery: ["assets/products/produto-012-2.jpg"],
     available: true,
     featured: false,
     isChristmas: true,
@@ -232,7 +244,7 @@ export const PRODUCTS: Product[] = [
         name: "Vela",
         type: "vela",
         quantity: 3,
-        aroma: { mode: "choice", options: AROMAS_VELAS_NATAL }
+        aroma: { mode: "none" }
       }
     ],
     available: true,

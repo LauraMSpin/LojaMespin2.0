@@ -55,6 +55,7 @@ export const CUSTOM_PRODUCTS: CustomProduct[] = [
     featured: true,
     sortOrder: 1,
     image: "assets/personalizados/latinhas.jpg",
+    gallery: ["assets/personalizados/latinha-2.jpg", "assets/personalizados/latinha-3.jpg", "assets/personalizados/latinha-4.jpg"],
     productionTime: "5 dias úteis"
   },
   {
@@ -88,8 +89,61 @@ export const CUSTOM_PRODUCTS: CustomProduct[] = [
     options: UNIT_OPTIONS,
     featured: true,
     image: "assets/personalizados/copinho.jpg",
+    gallery: ["assets/personalizados/copinho-2.jpg", "assets/personalizados/copinho-3.jpg"],
     productionTime: "7 dias úteis",
     sortOrder: 3
+  },
+  {
+    id: "vela-bubble",
+    name: "Vela Bubble",
+    description: "Vela aromatizada em formato bubble.",
+    kind: "unit",
+    available: true,
+    minimumQuantity: 1,
+    minimumScope: "perAroma",
+    quantityStep: 1,
+    basePrice: 42,
+    discountTiers: [],
+    options: UNIT_OPTIONS,
+    featured: true,
+    image: "assets/personalizados/bubble.jpg",
+    productionTime: "7 dias úteis",
+    sortOrder: 4
+  },
+  {
+    id: "vela-personalizada",
+    name: "Vela Personalizada",
+    description: "Vela aromatizada com aroma e etiqueta personalizados.",
+    kind: "unit",
+    available: true,
+    minimumQuantity: 1,
+    minimumScope: "perAroma",
+    quantityStep: 1,
+    basePrice: null,
+    discountTiers: [{ minQuantity: 5, discount: 5 }, { minQuantity: 10, discount: 8 }],
+    options: UNIT_OPTIONS,
+    featured: true,
+    image: "assets/personalizados/vela.jpg",
+    gallery: ["assets/personalizados/vela-2.jpg"],
+    productionTime: "7 dias úteis",
+    sortOrder: 5
+  },
+  {
+    id: "vela-chopp-personalizada",
+    name: "Vela Chopp Personalizada",
+    description: "Vela em copo de chopp com rótulo personalizado.",
+    kind: "unit",
+    available: true,
+    minimumQuantity: 1,
+    minimumScope: "perAroma",
+    quantityStep: 1,
+    basePrice: null,
+    discountTiers: [],
+    options: UNIT_OPTIONS,
+    featured: false,
+    image: "assets/personalizados/cerveja.jpg",
+    productionTime: "7 dias úteis",
+    sortOrder: 6
   },
   {
     id: "caixa-personalizada",
@@ -105,6 +159,7 @@ export const CUSTOM_PRODUCTS: CustomProduct[] = [
     priceFrom: true,
     discountTiers: [],
     image: "assets/personalizados/caixa.jpg",
+    gallery: ["assets/personalizados/caixa-2.jpg"],
     options: {
       aromas: [],
       labelFields: ["message"],
@@ -114,6 +169,6 @@ export const CUSTOM_PRODUCTS: CustomProduct[] = [
     },
     featured: true,
     productionTime: "3 dias úteis",
-    sortOrder: 4
+    sortOrder: 7
   }
 ];
