@@ -2,7 +2,7 @@ import { Check, Percent } from "lucide-react";
 import { useUI } from "../../context/UIContext";
 import type { CustomProduct } from "../../types";
 import { formatCents } from "../../utils/format";
-import ProductImage from "../ProductImage/ProductImage";
+import CardGallery from "../CardGallery/CardGallery";
 import "../ProductCard/ProductCard.css";
 import "./CustomProductCard.css";
 
@@ -35,17 +35,17 @@ export default function CustomProductCard({ product }: { product: CustomProduct 
 
   return (
     <article className={`product-card custom-card ${unavailable ? "is-soldout" : ""}`}>
-      <button
-        type="button"
-        className="product-card__media"
-        onClick={() => openCustom(product)}
-        aria-label={`Personalizar ${product.name}`}
+      <CardGallery
+        image={product.image}
+        gallery={product.gallery}
+        alt={product.name}
+        onOpen={() => openCustom(product)}
+        openLabel={`Personalizar ${product.name}`}
         disabled={unavailable}
       >
-        <ProductImage src={product.image} alt={product.name} />
         <span className="product-card__badge custom-card__badge">Sob encomenda</span>
         {unavailable && <span className="product-card__soldout">Indisponível</span>}
-      </button>
+      </CardGallery>
 
       <div className="product-card__body">
         <h3 className="product-card__name">

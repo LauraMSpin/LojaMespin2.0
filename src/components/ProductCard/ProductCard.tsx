@@ -7,7 +7,7 @@ import { buildConsultMessage, storeWhatsAppUrl } from "../../services/whatsapp";
 import { useUI } from "../../context/UIContext";
 import type { Product } from "../../types";
 import { formatPrice } from "../../utils/format";
-import ProductImage from "../ProductImage/ProductImage";
+import CardGallery from "../CardGallery/CardGallery";
 import "./ProductCard.css";
 
 export default function ProductCard({ product }: { product: Product }) {
@@ -28,16 +28,16 @@ export default function ProductCard({ product }: { product: Product }) {
 
   return (
     <article className={`product-card ${soldOut ? "is-soldout" : ""}`}>
-      <button
-        type="button"
-        className="product-card__media"
-        onClick={() => openProduct(product)}
-        aria-label={`Ver detalhes de ${product.name}`}
+      <CardGallery
+        image={product.image}
+        gallery={product.gallery}
+        alt={product.name}
+        onOpen={() => openProduct(product)}
+        openLabel={`Ver detalhes de ${product.name}`}
       >
-        <ProductImage src={product.image} alt={product.name} />
         {product.badge && <span className="product-card__badge">{product.badge}</span>}
         {soldOut && <span className="product-card__soldout">Esgotado</span>}
-      </button>
+      </CardGallery>
 
       <div className="product-card__body">
         <span className="product-card__category">{category?.label ?? product.category}</span>
