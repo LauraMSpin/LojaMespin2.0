@@ -48,10 +48,12 @@ export const CUSTOM_PRODUCTS: CustomProduct[] = [
     minimumScope: "perAroma",
     quantityStep: 1,
     basePrice: 6,
-    discountTiers: [],
+    discountTiers: [{ minQuantity: 50, discount: 5 }, { minQuantity: 100, discount: 10 }],
     options: UNIT_OPTIONS,
     featured: true,
-    sortOrder: 1
+    sortOrder: 1,
+    image: "assets/personalizados/latinhas.jpg",
+    productionTime: "5 dias úteis"
   },
   {
     id: "potinho-30ml-personalizado",
@@ -63,9 +65,11 @@ export const CUSTOM_PRODUCTS: CustomProduct[] = [
     minimumScope: "perAroma",
     quantityStep: 1,
     basePrice: 11,
-    discountTiers: [],
+    discountTiers: [{ minQuantity: 20, discount: 5 }, { minQuantity: 50, discount: 8 }],
     options: UNIT_OPTIONS,
     featured: true,
+    image: "assets/personalizados/potinho.jpg",
+    productionTime: "7 dias úteis",
     sortOrder: 2
   },
   {
@@ -78,9 +82,11 @@ export const CUSTOM_PRODUCTS: CustomProduct[] = [
     minimumScope: "perAroma",
     quantityStep: 1,
     basePrice: 21,
-    discountTiers: [],
+    discountTiers: [{ minQuantity: 10, discount: 5 }, { minQuantity: 20, discount: 8 }],
     options: UNIT_OPTIONS,
     featured: true,
+    image: "assets/personalizados/copinho.jpg",
+    productionTime: "7 dias úteis",
     sortOrder: 3
   },
   {
@@ -96,6 +102,7 @@ export const CUSTOM_PRODUCTS: CustomProduct[] = [
     basePrice: 30,
     priceFrom: true,
     discountTiers: [],
+    image: "assets/personalizados/latinhas.jpg",
     options: {
       aromas: [],
       labelFields: ["message"],
@@ -104,6 +111,7 @@ export const CUSTOM_PRODUCTS: CustomProduct[] = [
       notes: true
     },
     featured: true,
+    productionTime: "3 dias úteis",
     sortOrder: 4
   }
 ];
