@@ -55,6 +55,7 @@ export const CUSTOM_PRODUCTS: CustomProduct[] = [
     featured: true,
     sortOrder: 1,
     image: "assets/personalizados/latinhas.jpg",
+    gallery: ["assets/personalizados/latinha-2.jpg", "assets/personalizados/latinha-3.jpg", "assets/personalizados/latinha-4.jpg"],
     productionTime: "5 dias úteis"
   },
   {
@@ -88,6 +89,7 @@ export const CUSTOM_PRODUCTS: CustomProduct[] = [
     options: UNIT_OPTIONS,
     featured: true,
     image: "assets/personalizados/copinho.jpg",
+    gallery: ["assets/personalizados/copinho-2.jpg", "assets/personalizados/copinho-3.jpg"],
     productionTime: "7 dias úteis",
     sortOrder: 3
   },
@@ -108,7 +110,7 @@ export const CUSTOM_PRODUCTS: CustomProduct[] = [
     productionTime: "7 dias úteis",
     sortOrder: 4
   },
-      {
+  {
     id: "vela-personalizada",
     name: "Vela Personalizada",
     description: "Vela aromatizada com aroma e etiqueta personalizados.",
@@ -122,6 +124,7 @@ export const CUSTOM_PRODUCTS: CustomProduct[] = [
     options: UNIT_OPTIONS,
     featured: true,
     image: "assets/personalizados/vela.jpg",
+    gallery: ["assets/personalizados/vela-2.jpg"],
     productionTime: "7 dias úteis",
     sortOrder: 5
   },
@@ -139,6 +142,7 @@ export const CUSTOM_PRODUCTS: CustomProduct[] = [
     priceFrom: true,
     discountTiers: [],
     image: "assets/personalizados/caixa.jpg",
+    gallery: ["assets/personalizados/caixa-2.jpg"],
     options: {
       aromas: [],
       labelFields: ["message"],
@@ -166,5 +170,5 @@ export const CUSTOM_PRODUCTS: CustomProduct[] = [
     image: "assets/personalizados/cerveja.jpg",
     productionTime: "7 dias úteis",
     sortOrder: 7
-  },
+  }
 ];
