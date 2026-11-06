@@ -1,7 +1,19 @@
 import { describe, expect, it } from "vitest";
 import { DEFAULT_FILTERS, filterProducts } from "./catalog";
-import { PRODUCTS } from "../data/products";
+import { PRODUCTS as REAL_PRODUCTS } from "../data/products";
 import { getCategory } from "../data/categories";
+import type { Product } from "../types";
+
+const base = { description: "", image: "", aromas: [], available: true, featured: false, isChristmas: false };
+
+// Catálogo fixo de teste: independe das edições feitas em src/data/products.ts
+const PRODUCTS: Product[] = [
+  ...REAL_PRODUCTS.slice(0, 3),
+  { ...base, id: "difusor-a", name: "Difusor A", category: "difusores", price: 149.9, sortOrder: 90 },
+  { ...base, id: "difusor-b", name: "Difusor B", category: "difusores", price: 45, sortOrder: 91 },
+  { ...base, id: "aromatizador-spray-citrico", name: "Aromatizador Spray Cítrico", category: "saches", price: 40, sortOrder: 92 },
+  { ...base, id: "sob-consulta", name: "Item sob consulta", category: "velas", price: null, sortOrder: 93 }
+];
 
 const run = (over: Partial<typeof DEFAULT_FILTERS>) =>
   filterProducts(PRODUCTS, { ...DEFAULT_FILTERS, ...over }, (id) => getCategory(id)?.name ?? "");

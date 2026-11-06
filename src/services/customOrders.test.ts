@@ -14,7 +14,23 @@ import {
 import { buildOrderMessage } from "./whatsapp";
 import { CUSTOM_PRODUCTS } from "../data/customProducts";
 import { PRODUCTS } from "../data/products";
-import type { CustomProduct } from "../types";
+import type { CustomProduct, Product } from "../types";
+
+// Item sem preço fixo apenas para teste (o catálogo real pode mudar)
+const SEM_PRECO: Product = {
+  id: "difusor-ultrassonico-premium",
+  name: "Difusor Ultrassônico Premium",
+  category: "difusores",
+  description: "",
+  image: "",
+  price: null,
+  aromas: [],
+  available: true,
+  featured: false,
+  isChristmas: false,
+  sortOrder: 99
+};
+const TEST_CATALOG: Product[] = [...PRODUCTS, SEM_PRECO];
 
 const latinha = CUSTOM_PRODUCTS.find((p) => p.id === "latinhas-personalizadas") as CustomProduct;
 const copinho = CUSTOM_PRODUCTS.find((p) => p.id === "copinho-50ml-personalizado") as CustomProduct;
@@ -114,7 +130,7 @@ describe("descontos progressivos", () => {
 });
 
 describe("caixa personalizada", () => {
-  const sources = getBoxSources();
+  const sources = getBoxSources(TEST_CATALOG);
 
   it("soma o valor de cada item ao valor base", () => {
     const line = createCustomLine({
@@ -227,7 +243,7 @@ describe("mensagem do WhatsApp com personalizados", () => {
         { source: "catalog", refId: "difusor-ultrassonico-premium", aroma: null, quantity: 1 }
       ]
     });
-    const details = getCustomDetails([line]);
+    const details = getCustomDetails([line], CUSTOM_PRODUCTS, TEST_CATALOG);
     const msg = buildOrderMessage(customer, [], 0, details);
     expect(msg).toContain("- Quantidade de caixas: 1");
     expect(msg).toContain("• 1x Vela Aromática 100g (Lavanda) — R$ 32,00");
