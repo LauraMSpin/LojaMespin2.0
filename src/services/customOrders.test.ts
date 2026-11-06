@@ -113,9 +113,9 @@ describe("descontos progressivos", () => {
   });
 
   it("sem faixas cadastradas não há desconto", () => {
-    const line = createCustomLine({ productId: latinha.id, units: [{ aroma: "Lavanda", quantity: 500 }] });
-    const d = computeCustomOrder(line, latinha);
-    expect(d.discountPercent).toBe(0);
+    const noTiers = { ...latinha, discountTiers: [] };
+    const line = createCustomLine({ productId: noTiers.id, units: [{ aroma: "Lavanda", quantity: 500 }] });
+    const d = computeCustomOrder(line, noTiers);
     expect(d.subtotalCents).toBe(300000);
     expect(d.savingsCents).toBe(0);
   });

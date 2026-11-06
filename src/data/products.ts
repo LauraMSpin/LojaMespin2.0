@@ -5,8 +5,10 @@ import type { Product } from "../types";
  *
  * Edite este arquivo para cadastrar, alterar ou remover produtos.
  * - price: número em reais (ex.: 32 ou 89.9). Use `null` para "Preço sob consulta".
- * - image: caminho dentro de `public/` (ex.: "assets/products/minha-foto.jpg").
+ * - image: foto principal (caminho dentro de `public/`, ex.: "assets/products/minha-foto.jpg").
  *   Sem imagem, o site exibe um placeholder da marca.
+ * - gallery: fotos extras (opcional), ex.: ["assets/products/minha-foto-2.jpg"]. Aparecem como
+ *   miniaturas no modal do produto.
  * - aromas: lista de aromas. Lista vazia = produto sem escolha de aroma.
  * - customization: { fields: ["labelName", "giftMessage", "notes"] } habilita campos de texto.
  * - components: composição de um kit (lista de itens). Cada item tem id, name, type, quantity e aroma

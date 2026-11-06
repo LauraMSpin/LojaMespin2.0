@@ -71,6 +71,7 @@ Edite `src/data/customProducts.ts`:
   name: "Latinhas Personalizadas",
   description: "...",
   image: "assets/personalizados/minha-foto.jpg",   // opcional (sem imagem = placeholder)
+  gallery: ["assets/personalizados/outra-foto.jpg"], // opcional: fotos extras
   kind: "unit",                      // "unit" = itens por aroma | "box" = caixa montada pelo cliente
   available: true,
   minimumQuantity: 10,

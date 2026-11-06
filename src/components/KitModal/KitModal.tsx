@@ -35,6 +35,11 @@ export default function KitDialog({ product, edit, onClose }: Props) {
 
   const max = STORE_CONFIG.maxKitUnits;
   const slots = useMemo(() => getSlots(product), [product]);
+  const images = useMemo(
+    () => [product.image, ...(product.gallery ?? [])].filter((i): i is string => Boolean(i)),
+    [product]
+  );
+  const [imageIndex, setImageIndex] = useState(0);
   const category = getCategory(product.category);
   const onRequest = product.price === null;
   const unavailable = !product.available;
@@ -122,8 +127,23 @@ export default function KitDialog({ product, edit, onClose }: Props) {
 
         <div className="pmodal__media">
           <div className="pmodal__image">
-            <ProductImage src={product.image} alt={product.name} fit="contain" loading="eager" />
+            <ProductImage src={images[imageIndex]} alt={product.name} fit="contain" loading="eager" />
           </div>
+          {images.length > 1 && (
+            <div className="pmodal__thumbs">
+              {images.map((src, i) => (
+                <button
+                  key={src}
+                  type="button"
+                  className={i === imageIndex ? "is-active" : ""}
+                  onClick={() => setImageIndex(i)}
+                  aria-label={`Ver imagem ${i + 1}`}
+                >
+                  <ProductImage src={src} alt="" />
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="pmodal__info kmodal__info">

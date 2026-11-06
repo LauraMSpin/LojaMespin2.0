@@ -53,6 +53,11 @@ function CustomDialog({
   const hasAromas = aromas.length > 0;
   const perAroma = product.minimumScope === "perAroma";
   const sources = useMemo(() => (isBox ? getBoxSources() : []), [isBox]);
+  const images = useMemo(
+    () => [product.image, ...(product.gallery ?? [])].filter((i): i is string => Boolean(i)),
+    [product]
+  );
+  const [imageIndex, setImageIndex] = useState(0);
 
   const [aromaQty, setAromaQty] = useState<Record<string, number>>(() => {
     const result: Record<string, number> = {};
@@ -134,8 +139,23 @@ function CustomDialog({
 
         <div className="pmodal__media">
           <div className="pmodal__image">
-            <ProductImage src={product.image} alt={product.name} fit="contain" loading="eager" />
+            <ProductImage src={images[imageIndex]} alt={product.name} fit="contain" loading="eager" />
           </div>
+          {images.length > 1 && (
+            <div className="pmodal__thumbs">
+              {images.map((src, i) => (
+                <button
+                  key={src}
+                  type="button"
+                  className={i === imageIndex ? "is-active" : ""}
+                  onClick={() => setImageIndex(i)}
+                  aria-label={`Ver imagem ${i + 1}`}
+                >
+                  <ProductImage src={src} alt="" />
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="pmodal__info cmodal__info">

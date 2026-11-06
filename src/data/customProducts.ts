@@ -10,8 +10,10 @@ import type { CustomProduct } from "../types";
  *   (exemplo: [{ minQuantity: 50, discount: 5 }, { minQuantity: 100, discount: 10 }]).
  *   Só cadastre descontos confirmados.
  * - productionTime: ex. "15 dias úteis". Vazio = "a confirmar pelo atendimento".
- * - image: caminho dentro de `public/` (ex.: "assets/personalizados/foto.jpg").
+ * - image: foto principal, caminho dentro de `public/` (ex.: "assets/personalizados/foto.jpg").
  *   Sem imagem, o site mostra o placeholder da marca.
+ * - gallery: fotos extras (opcional), ex.: ["assets/personalizados/foto-2.jpg"]. Aparecem como
+ *   miniaturas ao abrir o produto.
  */
 
 export const CUSTOM_RULES = {
@@ -102,7 +104,7 @@ export const CUSTOM_PRODUCTS: CustomProduct[] = [
     basePrice: 30,
     priceFrom: true,
     discountTiers: [],
-    image: "assets/personalizados/latinhas.jpg",
+    image: "assets/personalizados/caixa.jpg",
     options: {
       aromas: [],
       labelFields: ["message"],
