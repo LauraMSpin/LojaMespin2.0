@@ -1,9 +1,8 @@
 export type CategoryId =
   | "velas"
   | "difusores"
-  | "sprays"
   | "saches"
-  | "incensos"
+  | "wax-melts"
   | "kits";
 
 export type CustomizationField = "labelName" | "giftMessage" | "notes";

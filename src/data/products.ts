@@ -24,13 +24,19 @@ const AROMAS_VELAS = [
   "Flor de Laranjeira"
 ];
 
+const AROMAS_VELAS_NATAL = [
+  "Bosque Natalino",
+  "Especiarias de Natal",
+  "Aconchego do Noel"
+];
+
 export const PRODUCTS: Product[] = [
   {
     id: "vela-aromatica-100g",
     name: "Vela Aromática 100g",
     category: "velas",
     description: "Vela em copo patê com 100g aromatizada.",
-    image: "assets/products/vela-aromatica-100g.jpg",
+    image: "assets/products/produto-001.jpg",
     price: 32,
     aromas: AROMAS_VELAS,
     available: true,
@@ -38,12 +44,25 @@ export const PRODUCTS: Product[] = [
     isChristmas: false,
     sortOrder: 1
   },
+    {
+    id: "vela-aromatica-200g",
+    name: "Vela Aromática 200g",
+    category: "velas",
+    description: "Vela em copo patê com 200g aromatizada.",
+    image: "assets/products/produto-002.jpg",
+    price: 70,
+    aromas: AROMAS_VELAS,
+    available: true,
+    featured: true,
+    isChristmas: false,
+    sortOrder: 2
+  },
   {
     id: "kit-vela-dupla",
     name: "Kit Vela Dupla",
     category: "kits",
-    description: "Kit com duas velas aromáticas. Você escolhe o aroma de cada vela.",
-    image: "assets/products/kit-vela-dupla.jpg",
+    description: "Kit com duas velas aromáticas de 100g. Você escolhe o aroma de cada vela.",
+    image: "assets/products/produto-003.jpg",
     price: 70,
     aromas: [],
     components: [
@@ -58,130 +77,181 @@ export const PRODUCTS: Product[] = [
     available: true,
     featured: true,
     isChristmas: false,
-    sortOrder: 2
+    sortOrder: 3
   },
   {
-    id: "difusor-aromas-berco-rosa",
-    name: "Difusor de Aromas Berço Rosa",
+    id: "difusor-cerâmica",
+    name: "Difusor de Aromas Cerâmica",
     category: "difusores",
-    description: "Difusor elegante em formato de berço com essências variadas.",
-    price: 89.9, // PENDENTE: foto e aromas
+    description: "Difusor elegante em cerâmica.",
+    image: "assets/products/produto-004.jpg",
+    price: 50,
     aromas: [],
     available: true,
     featured: true,
     isChristmas: false,
-    sortOrder: 3
-  },
-  {
-    id: "kit-velas-natalinas-especial",
-    name: "Kit Velas Natalinas Especial",
-    category: "kits",
-    description: "Kit com 3 velas natalinas: Pinha, Canela e Hibisco.",
-    price: 149.9, // PENDENTE: foto
-    aromas: [],
-    available: true,
-    featured: true,
-    isChristmas: true,
-    badge: "Natal",
     sortOrder: 4
   },
   {
-    id: "aromatizador-spray-citrico",
-    name: "Aromatizador Spray Cítrico",
-    category: "sprays",
-    description: "Spray aromatizador com essência cítrica refrescante.",
-    price: 39.9, // PENDENTE: foto
-    aromas: [],
+    id: "wax-melt",
+    name: "Wax Melts 30g",
+    category: "wax-melts",
+    description: "Wax melts aromatizados",
+    image: "assets/products/produto-005.jpg",
+    price: 20,
+    aromas: AROMAS_VELAS,
     available: true,
     featured: true,
     isChristmas: false,
     sortOrder: 5
   },
   {
-    id: "vela-flutuante-ouro-natal",
-    name: "Vela Flutuante Ouro Natal",
+    id: "pets-aromáticos",
+    name: "Pets Aromáticos",
     category: "velas",
-    description: "Vela flutuante dourada com essência de Ouro e Madeira - Edição Natal.",
-    price: 79.9, // PENDENTE: foto
-    aromas: [],
+    description: "Pets aromáticos para decorar e perfumar o ambiente.",
+    price: 18,
+    aromas: ["Menta & Flor de Lótus"],
+    image: "assets/products/produto-006.jpg",
     available: true,
     featured: true,
-    isChristmas: true,
-    badge: "Natal",
+    isChristmas: false,
     sortOrder: 6
   },
   {
-    id: "aromatizador-ambiente-eucalipto",
-    name: "Aromatizador Ambiente Eucalipto",
-    category: "sprays",
-    description: "Aromatizador de ambiente com essência de eucalipto.",
-    price: null, // PENDENTE: preço e foto
-    aromas: [],
+    id: "cartao-postal",
+    name: "Cartão Postal",
+    category: "velas",
+    description: "Cartão postal de natal com latinha para iluminar seu ambiente.",
+    price: 10, 
+    aromas: AROMAS_VELAS_NATAL,
+    image: "assets/products/produto-007.jpg",
     available: true,
     featured: false,
-    isChristmas: false,
+    isChristmas: true,
+    badge: "Natal",
     sortOrder: 7
   },
   {
-    id: "difusor-ultrassonico-premium",
-    name: "Difusor Ultrassônico Premium",
-    category: "difusores",
-    description: "Difusor ultrassônico para aromatizar o ambiente.",
-    price: null, // PENDENTE: preço e foto
-    aromas: [],
+    id: "pingente-natal-arvore",
+    name: "Pingente Natal Árvore",
+    category: "velas",
+    description: "Pingente aromatizador com fragrância natalina.",
+    price: 16,
+    aromas: ["Bosque Natalino"],
+    image: "assets/products/produto-008.jpg",
     available: true,
     featured: false,
-    isChristmas: false,
+    isChristmas: true,
+    badge: "Natal",
     sortOrder: 8
   },
-  {
-    id: "incenso-aromatico-almiscar",
-    name: "Incenso Aromático Almíscar",
-    category: "incensos",
-    description: "Incenso aromático com fragrância de almíscar.",
-    price: null, // PENDENTE: preço e foto
-    aromas: [],
+    {
+    id: "pingente-natal-rena",
+    name: "Pingente Natal Rena",
+    category: "velas",
+    description: "Pingente aromatizador com fragrância natalina.",
+    price: 16,
+    aromas: ["Aconchego do Noel"],
+    image: "assets/products/produto-009.jpg",
     available: true,
     featured: false,
-    isChristmas: false,
+    isChristmas: true,
+    badge: "Natal",
     sortOrder: 9
   },
   {
-    id: "vela-aromatica-chocolate-natalina",
-    name: "Vela Aromática Chocolate Natalina",
+    id: "pingente-natal-biscoito",
+    name: "Pingente Natal Biscoito",
     category: "velas",
-    description: "Vela aromática com fragrância de chocolate - Edição Natal.",
-    price: null, // PENDENTE: preço e foto
-    aromas: [],
+    description: "Pingente aromatizador com fragrância natalina.",
+    price: 16,
+    aromas: AROMAS_VELAS_NATAL,
+    image: "assets/products/produto-010.jpg",
     available: true,
     featured: false,
     isChristmas: true,
     badge: "Natal",
     sortOrder: 10
   },
-  {
-    id: "aromatizador-sache-floresta",
-    name: "Aromatizador Sachê Floresta",
-    category: "saches",
-    description: "Sachê aromatizador com fragrância de floresta.",
-    price: null, // PENDENTE: preço e foto
-    aromas: [],
+    {
+    id: "trio-pingentes",
+    name: "Trio Pingentes Natal",
+    category: "velas",
+    description: "Trio de Pingentes aromatizadores com fragrância natalina.",
+    price: 42,
+    aromas: AROMAS_VELAS_NATAL,
+    image: "assets/products/produto-011.jpg",
     available: true,
     featured: false,
-    isChristmas: false,
+    isChristmas: true,
+    badge: "Natal",
     sortOrder: 11
   },
   {
-    id: "kit-presente-noel-luxury",
-    name: "Kit Presente Noël Luxury",
-    category: "kits",
-    description: "Kit presente natalino para surpreender quem você ama.",
-    price: null, // PENDENTE: preço e foto
-    aromas: [],
+    id: "wax-melt-natal",
+    name: "Wax Melt Natal",
+    category: "wax-melts",
+    description: "Wax melt aromatizado com fragrância natalina.",
+    price: 20,
+    aromas: AROMAS_VELAS_NATAL,
+    image: "assets/products/produto-012.jpg",
     available: true,
     featured: false,
     isChristmas: true,
     badge: "Natal",
     sortOrder: 12
+  },
+  {
+    id: "vela-bubble",
+    name: "Vela Bubble",
+    category: "velas",
+    description: "Vela aromatizada em formato bubble.",
+    price: 39,
+    aromas: [],
+    image: "assets/products/produto-013.jpg",
+    available: true,
+    featured: false,
+    isChristmas: true,
+    badge: "Natal",
+    sortOrder: 13
+  },
+  {
+    id: "kit-mini-velas-natal",
+    name: "Kit Mini Velas Natal",
+    category: "kits",
+    description: "Kit com três mini velas aromáticas de 30g.",
+    image: "assets/products/produto-014.jpg",
+    price: 70,
+    aromas: [],
+    components: [
+      {
+        id: "vela",
+        name: "Vela",
+        type: "vela",
+        quantity: 3,
+        aroma: { mode: "choice", options: AROMAS_VELAS_NATAL }
+      }
+    ],
+    available: true,
+    featured: true,
+    isChristmas: true,
+    badge: "Natal",
+    sortOrder: 14
+  },
+  {
+    id: "kit-presente-noel-luxury",
+    name: "Kit Presente Noel Luxury",
+    category: "kits",
+    description: "Kit presente natalino para surpreender quem você ama. Contém uma vela aromática de 200g, uma árvore de natal aromática, um kit de fósforos e um abafador",
+    price: 150,
+        image: "assets/products/produto-015.jpg",
+    aromas: ["Golden Christmas"],
+    available: true,
+    featured: false,
+    isChristmas: true,
+    badge: "Natal",
+    sortOrder: 15
   }
+  
 ];
