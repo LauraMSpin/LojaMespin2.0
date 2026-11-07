@@ -145,47 +145,19 @@ export const PRODUCTS: Product[] = [
     badge: "Natal",
     sortOrder: 7
   },
-  {
-    id: "pingente-natal-arvore",
-    name: "Pingente Natal Árvore",
-    category: "velas",
-    description: "Pingente aromatizador com fragrância natalina.",
-    price: 16,
-    aromas: ["Bosque Natalino"],
-    image: "assets/products/produto-008.jpg",
-    available: true,
-    featured: false,
-    isChristmas: true,
-    badge: "Natal",
-    sortOrder: 8
-  },
     {
-    id: "pingente-natal-floco-neve",
-    name: "Pingente Natal Floco de Neve",
+    id: "pingente-natal",
+    name: "Pingente Natal",
     category: "velas",
     description: "Pingente aromatizador com fragrância natalina.",
     price: 16,
-    aromas: ["Aconchego do Noel"],
+    aromas: ["Floco de Neve - Aconchego do Noel", "Árvore de Natal - Bosque Natalino", "Biscoito - Especiarias de Natal"],
     image: "assets/products/produto-009.jpg",
     available: true,
     featured: false,
     isChristmas: true,
     badge: "Natal",
-    sortOrder: 9
-  },
-  {
-    id: "pingente-natal-biscoito",
-    name: "Pingente Natal Biscoito",
-    category: "velas",
-    description: "Pingente aromatizador com fragrância natalina.",
-    price: 16,
-    aromas: ["Especiarias de Natal"],
-    image: "assets/products/produto-010.jpg",
-    available: true,
-    featured: false,
-    isChristmas: true,
-    badge: "Natal",
-    sortOrder: 10
+    sortOrder: 8
   },
     {
     id: "trio-pingentes",
@@ -213,7 +185,7 @@ export const PRODUCTS: Product[] = [
     featured: false,
     isChristmas: true,
     badge: "Natal",
-    sortOrder: 11
+    sortOrder: 9
   },
   {
     id: "wax-melt-natal",
@@ -228,7 +200,7 @@ export const PRODUCTS: Product[] = [
     featured: false,
     isChristmas: true,
     badge: "Natal",
-    sortOrder: 12
+    sortOrder: 10
   },
   {
     id: "vela-bubble",
@@ -242,7 +214,7 @@ export const PRODUCTS: Product[] = [
     featured: false,
     isChristmas: true,
     badge: "Natal",
-    sortOrder: 13
+    sortOrder: 11
   },
   {
     id: "kit-mini-velas-natal",
@@ -270,7 +242,7 @@ export const PRODUCTS: Product[] = [
     featured: true,
     isChristmas: true,
     badge: "Natal",
-    sortOrder: 14
+    sortOrder: 12
   },
   {
     id: "kit-presente-noel-luxury",
@@ -284,7 +256,7 @@ export const PRODUCTS: Product[] = [
     featured: false,
     isChristmas: true,
     badge: "Natal",
-    sortOrder: 15
+    sortOrder: 13
   }
   ,
   {
@@ -298,7 +270,7 @@ export const PRODUCTS: Product[] = [
     available: true,
     featured: false,
     isChristmas: false,
-    sortOrder: 16
+    sortOrder: 14
   }
 
 ];
