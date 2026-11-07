@@ -162,7 +162,7 @@ export const PRODUCTS: Product[] = [
     {
     id: "trio-pingentes",
     name: "Trio Pingentes Natal",
-    category: "velas",
+    category: "kits",
     description: "Trio de Pingentes aromatizadores com fragrância natalina.",
     price: 42,
     aromas: [],
