@@ -194,6 +194,20 @@ export const PRODUCTS: Product[] = [
     description: "Trio de Pingentes aromatizadores com fragrância natalina.",
     price: 42,
     aromas: [],
+    components: [
+      {
+        id: "pingente",
+        name: "Pingente",
+        type: "pingente",
+        quantity: 3,
+        aroma: { mode: "fixed", value: "Bosque Natalino" },
+        aromas: [
+          { mode: "fixed", value: "Bosque Natalino" },
+          { mode: "fixed", value: "Especiarias de Natal" },
+          { mode: "fixed", value: "Aconchego do Noel" }
+        ]
+      }
+    ],
     image: "assets/products/produto-011.jpg",
     available: true,
     featured: false,
@@ -234,7 +248,7 @@ export const PRODUCTS: Product[] = [
     id: "kit-mini-velas-natal",
     name: "Kit Mini Velas Natal",
     category: "kits",
-    description: "Kit com três mini velas aromáticas de 30g.",
+    description: "Kit com três mini velas aromáticas de 50g.",
     image: "assets/products/produto-014.jpg",
     price: 70,
     aromas: [],
@@ -244,7 +258,12 @@ export const PRODUCTS: Product[] = [
         name: "Vela",
         type: "vela",
         quantity: 3,
-        aroma: { mode: "none" }
+        aroma: { mode: "fixed", value: "Bosque Natalino" },
+        aromas: [
+          { mode: "fixed", value: "Bosque Natalino" },
+          { mode: "fixed", value: "Especiarias de Natal" },
+          { mode: "fixed", value: "Aconchego do Noel" }
+        ]
       }
     ],
     available: true,
@@ -267,5 +286,19 @@ export const PRODUCTS: Product[] = [
     badge: "Natal",
     sortOrder: 15
   }
-  
+  ,
+  {
+    id: "difusor-elétrico",
+    name: "Difusor Elétrico",
+    category: "difusores",
+    description: "Difusor elétrico para wax melts e óleos aromáticos.",
+    price: 70,
+    image: "assets/products/produto-016.jpg",
+    aromas: ["Golden Christmas"],
+    available: true,
+    featured: false,
+    isChristmas: false,
+    sortOrder: 16
+  }
+
 ];

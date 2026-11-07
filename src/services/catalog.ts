@@ -14,8 +14,10 @@ export function requiresSelection(product: Product): boolean {
 export function productAromas(product: Product): string[] {
   const set = new Set(product.aromas);
   for (const component of product.components ?? []) {
-    if (component.aroma.mode === "choice") component.aroma.options.forEach((o) => set.add(o));
-    else if (component.aroma.mode === "fixed") set.add(component.aroma.value);
+    for (const aroma of [component.aroma, ...(component.aromas ?? [])]) {
+      if (aroma.mode === "choice") aroma.options.forEach((o) => set.add(o));
+      else if (aroma.mode === "fixed") set.add(aroma.value);
+    }
   }
   return [...set];
 }

@@ -28,7 +28,7 @@ export function getSlots(product: Product): KitSlot[] {
         name: count > 1 ? `${component.name} ${i}` : component.name,
         type: component.type,
         description: component.description,
-        aroma: component.aroma
+        aroma: component.aromas?.[i - 1] ?? component.aroma
       });
     }
   }

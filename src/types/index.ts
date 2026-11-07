@@ -20,7 +20,10 @@ export interface KitComponent {
   type: string;
   quantity: number;
   description?: string;
+  /** Aroma de todas as unidades do componente (a menos que `aromas` defina um por unidade). */
   aroma: KitAroma;
+  /** Opcional: um aroma por unidade (1ª posição = "Vela 1", 2ª = "Vela 2"...). Unidades sem entrada usam `aroma`. */
+  aromas?: KitAroma[];
 }
 
 export interface KitSlot {

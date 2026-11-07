@@ -62,6 +62,44 @@ describe("composição genérica (components)", () => {
   });
 });
 
+describe("aroma por unidade (aromas)", () => {
+  const trio: Product = {
+    ...presente,
+    id: "kit-trio-teste",
+    components: [
+      {
+        id: "vela",
+        name: "Vela",
+        type: "vela",
+        quantity: 3,
+        aroma: { mode: "choice", options: ["Lavanda", "Bambu"] },
+        aromas: [{ mode: "fixed", value: "Bosque Natalino" }, { mode: "fixed", value: "Aconchego do Noel" }]
+      }
+    ]
+  };
+
+  it("cada unidade pode ter um aroma fixo diferente; as demais usam o aroma do item", () => {
+    const slots = getSlots(trio);
+    expect(slots.map((s) => s.aroma.mode)).toEqual(["fixed", "fixed", "choice"]);
+    const group = createKitGroup({ productId: trio.id, units: [createUnit({ "vela:3": "Bambu" })] });
+    const [detail] = getKitDetails([group], [trio]);
+    expect(detail.units[0].items.map((i) => [i.name, i.value])).toEqual([
+      ["Vela 1", "Bosque Natalino"],
+      ["Vela 2", "Aconchego do Noel"],
+      ["Vela 3", "Bambu"]
+    ]);
+  });
+
+  it("só exige escolha nas unidades sem aroma definido", () => {
+    expect(validateUnit(trio, createUnit())).toEqual(["Kit — Vela 3: selecione o aroma."]);
+    expect(validateUnit(trio, createUnit({ "vela:3": "Bambu" }))).toEqual([]);
+  });
+
+  it("os aromas definidos entram na busca do catálogo", () => {
+    expect(productAromas(trio)).toEqual(expect.arrayContaining(["Bosque Natalino", "Aconchego do Noel", "Lavanda"]));
+  });
+});
+
 describe("validações", () => {
   it("exige um aroma por vela e cita o item pendente", () => {
     const errors = validateKitGroup(dupla, [unit("Lavanda", ""), createUnit({ "vela:1": "Bambu", "vela:2": "Lavanda" })]);
