@@ -5,7 +5,8 @@ import {
   cartTotal,
   createLine,
   getCartDetails,
-  parseStoredCart
+  parseStoredCart,
+  startingPrice
 } from "./cart";
 import type { Product } from "../types";
 
@@ -116,5 +117,54 @@ describe("parseStoredCart", () => {
     expect(parseStoredCart("não é json")).toEqual([]);
     expect(parseStoredCart('{"a":1}')).toEqual([]);
     expect(parseStoredCart('[{"productId":1,"quantity":2},{"productId":"x","quantity":0}]')).toEqual([]);
+  });
+});
+
+describe("variantes (tamanhos com preço próprio)", () => {
+  const refil = product({
+    id: "refil-vela",
+    category: "refil",
+    price: 25,
+    variants: [
+      { id: "100g", label: "100g", price: 25 },
+      { id: "200g", label: "200g", price: 40 }
+    ]
+  });
+
+  it("cobra o preço da variante escolhida", () => {
+    const details = getCartDetails(
+      [createLine("refil-vela", "Lavanda", 2, {}, "200g"), createLine("refil-vela", "Lavanda", 1, {}, "100g")],
+      [refil]
+    );
+    expect(details.map((d) => [d.variant?.label, d.unitPrice, d.subtotal])).toEqual([
+      ["200g", 40, 80],
+      ["100g", 25, 25]
+    ]);
+    expect(cartTotal(details)).toBe(105);
+  });
+
+  it("tamanhos diferentes do mesmo aroma ficam em linhas separadas; iguais somam", () => {
+    let state = cartReducer([], {
+      type: "add",
+      lines: [createLine("refil-vela", "Lavanda", 1, {}, "100g"), createLine("refil-vela", "Lavanda", 1, {}, "200g")],
+      max: 99
+    });
+    state = cartReducer(state, { type: "add", lines: [createLine("refil-vela", "Lavanda", 2, {}, "200g")], max: 99 });
+    expect(state.map((l) => [l.variantId, l.quantity])).toEqual([
+      ["100g", 1],
+      ["200g", 3]
+    ]);
+  });
+
+  it("ignora linha sem variante válida e preserva a variante ao reler o carrinho salvo", () => {
+    expect(getCartDetails([createLine("refil-vela", "Lavanda", 1)], [refil])).toEqual([]);
+    expect(getCartDetails([createLine("refil-vela", "Lavanda", 1, {}, "500g")], [refil])).toEqual([]);
+    const saved = JSON.stringify([createLine("refil-vela", "Lavanda", 2, {}, "200g")]);
+    expect(parseStoredCart(saved)[0].variantId).toBe("200g");
+  });
+
+  it("o menor preço é o da variante mais barata", () => {
+    expect(startingPrice(refil)).toBe(25);
+    expect(startingPrice(product({ price: 32 }))).toBe(32);
   });
 });

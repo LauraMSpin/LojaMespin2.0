@@ -31,7 +31,7 @@ const TITLES: Record<Step, string> = {
 
 function CartLineRow({ item }: { item: CartItemDetail }) {
   const { setQuantity, removeLine } = useCart();
-  const { line, product } = item;
+  const { line, product, variant } = item;
   const custom = customizationEntries(line.customization);
   return (
     <li className="cart-line">
@@ -45,6 +45,7 @@ function CartLineRow({ item }: { item: CartItemDetail }) {
             <Trash2 size={17} aria-hidden="true" />
           </button>
         </div>
+        {variant && <p className="cart-line__meta">Tamanho: {variant.label}</p>}
         {line.aroma && <p className="cart-line__meta">Aroma: {line.aroma}</p>}
         {custom.map((c) => (
           <p key={c.field} className="cart-line__meta">
@@ -73,13 +74,14 @@ function CartLineRow({ item }: { item: CartItemDetail }) {
 function ReviewList({ items }: { items: CartItemDetail[] }) {
   return (
     <ul className="review-list">
-      {items.map(({ line, product, unitPrice, subtotal }) => {
+      {items.map(({ line, product, variant, unitPrice, subtotal }) => {
         const custom = customizationEntries(line.customization);
         return (
           <li key={line.key}>
             <div>
               <strong>{product.name}</strong>
               <span>
+                {variant ? `${variant.label} · ` : ""}
                 {line.aroma ? `${line.aroma} · ` : ""}
                 {line.quantity} × {formatPrice(unitPrice)}
               </span>

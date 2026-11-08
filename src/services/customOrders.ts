@@ -1,5 +1,6 @@
 import { CUSTOM_PRODUCTS, CUSTOM_RULES } from "../data/customProducts";
 import { PRODUCTS } from "../data/products";
+import { hasVariants } from "./cart";
 import type {
   BoxItem,
   CustomBoxItemDetail,
@@ -108,13 +109,26 @@ export function getBoxSources(
   const fromCatalog: BoxSource[] = catalog
     .filter((p) => p.available && p.category !== "kits")
     .sort((a, b) => a.sortOrder - b.sortOrder)
-    .map((p) => ({
-      source: "catalog",
-      refId: p.id,
-      name: p.name,
-      priceCents: p.price === null ? null : toCents(p.price),
-      aromas: p.aromas
-    }));
+    .flatMap((p): BoxSource[] =>
+      // Cada tamanho vira um item próprio da caixa, com o seu preço (refId "produto:tamanho").
+      hasVariants(p)
+        ? (p.variants ?? []).map((v) => ({
+            source: "catalog" as const,
+            refId: `${p.id}:${v.id}`,
+            name: `${p.name} ${v.label}`,
+            priceCents: toCents(v.price),
+            aromas: p.aromas
+          }))
+        : [
+            {
+              source: "catalog" as const,
+              refId: p.id,
+              name: p.name,
+              priceCents: p.price === null ? null : toCents(p.price),
+              aromas: p.aromas
+            }
+          ]
+    );
   const fromCustom: BoxSource[] = customProducts
     .filter((p) => p.available && p.kind === "unit")
     .sort((a, b) => a.sortOrder - b.sortOrder)

@@ -5,7 +5,7 @@ import { STORE_CONFIG } from "../../data/settings";
 import { useUI } from "../../context/UIContext";
 import { useCart } from "../../hooks/useCart";
 import { useDialogBehavior } from "../../hooks/useDialogBehavior";
-import { CUSTOMIZATION_LABELS, createLine } from "../../services/cart";
+import { CUSTOMIZATION_LABELS, createLine, hasVariants } from "../../services/cart";
 import { buildConsultMessage, storeWhatsAppUrl } from "../../services/whatsapp";
 import { isKit } from "../../services/kits";
 import KitDialog from "../KitModal/KitModal";
@@ -32,6 +32,10 @@ function ProductDialog({ product, onClose }: { product: Product; onClose: () => 
   const [aromaQty, setAromaQty] = useState<Record<string, number>>({});
   const [singleQty, setSingleQty] = useState(1);
   const [custom, setCustom] = useState<CustomizationValues>({});
+  const variants = product.variants ?? [];
+  const [variantId, setVariantId] = useState<string | null>(hasVariants(product) ? variants[0].id : null);
+  const variant = variants.find((v) => v.id === variantId);
+  const unitPrice = variant ? variant.price : product.price;
 
   const category = getCategory(product.category);
   const unavailable = !product.available;
@@ -39,7 +43,7 @@ function ProductDialog({ product, onClose }: { product: Product; onClose: () => 
   const totalQty = hasAromas
     ? product.aromas.reduce((sum, a) => sum + (aromaQty[a] ?? 0), 0)
     : singleQty;
-  const total = onRequest ? 0 : (product.price as number) * totalQty;
+  const total = onRequest ? 0 : (unitPrice as number) * totalQty;
   const canAdd = !unavailable && !onRequest && totalQty > 0;
 
   const handleAdd = () => {
@@ -47,8 +51,8 @@ function ProductDialog({ product, onClose }: { product: Product; onClose: () => 
     const lines = hasAromas
       ? product.aromas
           .filter((a) => (aromaQty[a] ?? 0) > 0)
-          .map((a) => createLine(product.id, a, aromaQty[a], custom))
-      : [createLine(product.id, null, singleQty, custom)];
+          .map((a) => createLine(product.id, a, aromaQty[a], custom, variantId))
+      : [createLine(product.id, null, singleQty, custom, variantId)];
     addLines(lines);
     showToast(`${product.name} adicionado ao carrinho`);
     onClose();
@@ -82,8 +86,8 @@ function ProductDialog({ product, onClose }: { product: Product; onClose: () => 
               <span className="pmodal__price-consult">Preço sob consulta</span>
             ) : (
               <>
-                {product.originalPrice && <s>{formatPrice(product.originalPrice)}</s>}
-                <strong>{formatPrice(product.price as number)}</strong>
+                {product.originalPrice && !variant && <s>{formatPrice(product.originalPrice)}</s>}
+                <strong>{formatPrice(unitPrice as number)}</strong>
               </>
             )}
           </div>
@@ -101,6 +105,27 @@ function ProductDialog({ product, onClose }: { product: Product; onClose: () => 
             </a>
           ) : (
             <>
+              {variants.length > 0 && (
+                <fieldset className="pmodal__variants">
+                  <legend>Tamanho</legend>
+                  <div className="pmodal__variant-options">
+                    {variants.map((v) => (
+                      <label key={v.id} className={v.id === variantId ? "is-selected" : ""}>
+                        <input
+                          type="radio"
+                          name="variant"
+                          value={v.id}
+                          checked={v.id === variantId}
+                          onChange={() => setVariantId(v.id)}
+                        />
+                        <span>{v.label}</span>
+                        <small>{formatPrice(v.price)}</small>
+                      </label>
+                    ))}
+                  </div>
+                </fieldset>
+              )}
+
               {hasAromas ? (
                 <fieldset className="pmodal__aromas">
                   <legend>Escolha os aromas e quantidades</legend>

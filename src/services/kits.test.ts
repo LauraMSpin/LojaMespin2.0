@@ -192,8 +192,8 @@ describe("carrinho de kits", () => {
   });
 
   it("o carrinho comum ignora linhas antigas de kits", () => {
-    const legacy = [createLine(dupla.id, "Lavanda", 2), createLine("vela-aromatica-100g", "Lavanda", 1)];
-    expect(getCartDetails(legacy, PRODUCTS).map((d) => d.product.id)).toEqual(["vela-aromatica-100g"]);
+    const legacy = [createLine(dupla.id, "Lavanda", 2), createLine("vela-aromatica", "Lavanda", 1, {}, "100g")];
+    expect(getCartDetails(legacy, PRODUCTS).map((d) => d.product.id)).toEqual(["vela-aromatica"]);
   });
 });
 
@@ -223,9 +223,9 @@ describe("mensagem do WhatsApp com kits", () => {
   });
 
   it("numera kits depois dos produtos comuns", () => {
-    const standard = [{ line: { key: "k", productId: "p", aroma: "Lavanda", quantity: 1, customization: {} }, product: PRODUCTS[0], unitPrice: 32, subtotal: 32 }];
+    const standard = [{ line: { key: "k", productId: "p", aroma: "Lavanda", quantity: 1, customization: {} }, product: PRODUCTS[0], variant: PRODUCTS[0].variants?.[0], unitPrice: 32, subtotal: 32 }];
     const msg = buildOrderMessage(customer, standard, 242, [], getKitDetails([group]));
-    expect(msg).toContain("1. Vela Aromática 100g");
+    expect(msg).toContain("1. Vela Aromática (100g)");
     expect(msg).toContain("2. Kit Vela Dupla — 3 unidades");
   });
 });

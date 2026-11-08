@@ -9,6 +9,9 @@ import type { Product } from "../types";
  *   Sem imagem, o site exibe um placeholder da marca.
  * - gallery: fotos extras (opcional), ex.: ["assets/products/minha-foto-2.jpg"]. Aparecem como
  *   miniaturas no modal do produto.
+ * - variants: tamanhos com preço próprio (ex.: refil), o cliente escolhe um. Ex.:
+ *   variants: [{ id: "100g", label: "100g", price: 25 }, { id: "200g", label: "200g", price: 40 }]
+ *   Com variants, `price` serve só de referência (use o menor valor); o site mostra "A partir de".
  * - aromas: lista de aromas. Lista vazia = produto sem escolha de aroma.
  * - customization: { fields: ["labelName", "giftMessage", "notes"] } habilita campos de texto.
  * - components: composição de um kit (lista de itens). Cada item tem id, name, type, quantity e aroma
@@ -43,30 +46,22 @@ const ANIMAIS = [
 
 export const PRODUCTS: Product[] = [
   {
-    id: "vela-aromatica-100g",
-    name: "Vela Aromática 100g",
+    id: "vela-aromatica",
+    name: "Vela Aromática",
     category: "velas",
-    description: "Vela em copo patê com 100g aromatizada.",
+    description: "Vela em copo patê aromatizada, nos tamanhos de 100g e 200g.",
     image: "assets/products/produto-001.jpg",
+    gallery: ["assets/products/produto-002.jpg"],
     price: 32,
+    variants: [
+      { id: "100g", label: "100g", price: 32 },
+      { id: "200g", label: "200g", price: 70 }
+    ],
     aromas: AROMAS_VELAS,
     available: true,
     featured: true,
     isChristmas: false,
     sortOrder: 1
-  },
-    {
-    id: "vela-aromatica-200g",
-    name: "Vela Aromática 200g",
-    category: "velas",
-    description: "Vela em copo patê com 200g aromatizada.",
-    image: "assets/products/produto-002.jpg",
-    price: 70,
-    aromas: AROMAS_VELAS,
-    available: true,
-    featured: true,
-    isChristmas: false,
-    sortOrder: 2
   },
   {
     id: "kit-vela-dupla",
@@ -271,6 +266,21 @@ export const PRODUCTS: Product[] = [
     featured: false,
     isChristmas: false,
     sortOrder: 14
+  },
+  {
+    id: "refil-vela-aromatica",
+    name: "Refil de Vela Aromática",
+    category: "refil",
+    description: "Refil de vela aromática para reutilizar o seu copo. Escolha o tamanho e o aroma.",
+    price: 28,
+    variants: [
+      { id: "100g", label: "100g", price: 28 },
+      { id: "200g", label: "200g", price: 52 }
+    ],
+    aromas: AROMAS_VELAS,
+    available: true,
+    featured: false,
+    isChristmas: false,
+    sortOrder: 15
   }
-
 ];

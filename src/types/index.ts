@@ -3,6 +3,7 @@ export type CategoryId =
   | "difusores"
   | "saches"
   | "wax-melts"
+  | "refil"
   | "kits";
 
 export type CustomizationField = "labelName" | "giftMessage" | "notes";
@@ -84,6 +85,15 @@ export interface Customization {
   fields: CustomizationField[];
 }
 
+/** Tamanho/versão de um produto com preço próprio (ex.: refil de 100g e de 200g). */
+export interface ProductVariant {
+  /** Estável para o carrinho (ex.: "100g"). */
+  id: string;
+  /** Texto exibido ao cliente (ex.: "100g"). */
+  label: string;
+  price: number;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -95,6 +105,8 @@ export interface Product {
   /** Preço atual em reais. `null` = preço sob consulta (pedido via WhatsApp). */
   price: number | null;
   originalPrice?: number;
+  /** Opções de tamanho com preço próprio. Quando presente, o cliente escolhe uma e `price` serve só de referência. */
+  variants?: ProductVariant[];
   aromas: string[];
   available: boolean;
   featured: boolean;
@@ -114,11 +126,14 @@ export interface CartLine {
   aroma: string | null;
   quantity: number;
   customization: CustomizationValues;
+  /** Id da variante escolhida (produtos com `variants`). */
+  variantId?: string | null;
 }
 
 export interface CartItemDetail {
   line: CartLine;
   product: Product;
+  variant?: ProductVariant;
   unitPrice: number;
   subtotal: number;
 }

@@ -2,7 +2,7 @@ import { ShoppingCart, MessageCircle } from "lucide-react";
 import { getCategory } from "../../data/categories";
 import { useCart } from "../../hooks/useCart";
 import { requiresSelection } from "../../services/catalog";
-import { createLine } from "../../services/cart";
+import { createLine, hasVariants, startingPrice } from "../../services/cart";
 import { buildConsultMessage, storeWhatsAppUrl } from "../../services/whatsapp";
 import { useUI } from "../../context/UIContext";
 import type { Product } from "../../types";
@@ -54,10 +54,13 @@ export default function ProductCard({ product }: { product: Product }) {
               <span className="product-card__price-consult">Sob consulta</span>
             ) : (
               <>
-                {product.originalPrice && (
+                {product.originalPrice && !hasVariants(product) && (
                   <s className="product-card__price-old">{formatPrice(product.originalPrice)}</s>
                 )}
-                <span>{formatPrice(product.price as number)}</span>
+                <span>
+                  {hasVariants(product) ? "A partir de " : ""}
+                  {formatPrice(startingPrice(product) as number)}
+                </span>
               </>
             )}
           </div>

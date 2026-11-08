@@ -1,5 +1,5 @@
 import { STORE_CONFIG } from "../data/settings";
-import type { CartItemDetail, CustomerData, CustomOrderDetail, KitGroupDetail, Product } from "../types";
+import type { CartItemDetail, CustomerData, CustomOrderDetail, KitGroupDetail, Product, ProductVariant } from "../types";
 import { customizationEntries } from "./cart";
 import { customHasPending, customTotalCents, LABEL_FIELD_INFO, toCents } from "./customOrders";
 import { formatCents, formatPrice } from "../utils/format";
@@ -46,6 +46,7 @@ const unitsText = (n: number) => `${n} ${n === 1 ? "unidade" : "unidades"}`;
 
 interface OrderGroup {
   product: Product;
+  variant?: ProductVariant;
   entries: CartItemDetail[];
 }
 
@@ -54,10 +55,10 @@ function groupDetails(details: CartItemDetail[]): OrderGroup[] {
   const groups = new Map<string, OrderGroup>();
   for (const detail of details) {
     const custom = JSON.stringify(detail.line.customization);
-    const key = `${detail.product.id}|${custom}`;
+    const key = `${detail.product.id}|${detail.variant?.id ?? ""}|${custom}`;
     const group = groups.get(key);
     if (group) group.entries.push(detail);
-    else groups.set(key, { product: detail.product, entries: [detail] });
+    else groups.set(key, { product: detail.product, variant: detail.variant, entries: [detail] });
   }
   return [...groups.values()];
 }
@@ -88,7 +89,7 @@ export function buildOrderMessage(
     lines.push("*MEU PEDIDO*", "");
     const standardGroups = groupDetails(details);
     standardGroups.forEach((group, index) => {
-      lines.push(`${index + 1}. ${group.product.name}`);
+      lines.push(`${index + 1}. ${group.product.name}${group.variant ? ` (${group.variant.label})` : ""}`);
       for (const entry of group.entries) {
         lines.push(
           entry.line.aroma

@@ -16,6 +16,7 @@ import {
   Wind,
   FlaskConical,
   MessageCircle,
+  Recycle,
   Sparkles,
   type LucideProps
 } from "lucide-react";
@@ -27,6 +28,7 @@ const MAP: Record<string, ComponentType<LucideProps>> = {
   diffuser: FlaskConical,
   spray: SprayCan,
   sachet: ShoppingBag,
+  refill: Recycle,
   incense: Wind,
   gift: Gift,
   natal: TreePine,

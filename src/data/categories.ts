@@ -5,6 +5,7 @@ export const CATEGORIES: Category[] = [
   { id: "difusores", name: "Difusores", label: "Difusor", icon: "diffuser" },
   { id: "saches", name: "Sachês", label: "Sachê", icon: "sachet" },
   { id: "wax-melts", name: "Wax Melts", label: "Wax Melt", icon: "wax" },
+  { id: "refil", name: "Refil", label: "Refil", icon: "refill" },
   { id: "kits", name: "Kits e Presentes", label: "Kit", icon: "gift" }
 ];
 

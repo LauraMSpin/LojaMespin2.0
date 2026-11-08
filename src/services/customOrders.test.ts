@@ -80,7 +80,7 @@ describe("quantidade mínima", () => {
   it("caixa: mínimo de 1 e pelo menos um item", () => {
     const empty = createCustomLine({ productId: caixa.id, units: [{ aroma: null, quantity: 1 }] });
     expect(validateCustomLine(empty, caixa)).toEqual(["Escolha ao menos um item para a caixa."]);
-    const ok = createCustomLine({ productId: caixa.id, units: [{ aroma: null, quantity: 1 }], boxItems: [{ source: "catalog", refId: "vela-aromatica-100g", aroma: null, quantity: 1 }] });
+    const ok = createCustomLine({ productId: caixa.id, units: [{ aroma: null, quantity: 1 }], boxItems: [{ source: "catalog", refId: "vela-aromatica:100g", aroma: null, quantity: 1 }] });
     expect(validateCustomLine(ok, caixa)).toEqual([]);
   });
 });
@@ -137,7 +137,7 @@ describe("caixa personalizada", () => {
       productId: caixa.id,
       units: [{ aroma: null, quantity: 2 }],
       boxItems: [
-        { source: "catalog", refId: "vela-aromatica-100g", aroma: "Lavanda", quantity: 2 },
+        { source: "catalog", refId: "vela-aromatica:100g", aroma: "Lavanda", quantity: 2 },
         { source: "custom", refId: "latinhas-personalizadas", aroma: "Bambu", quantity: 3 }
       ]
     });
@@ -239,7 +239,7 @@ describe("mensagem do WhatsApp com personalizados", () => {
       productId: caixa.id,
       units: [{ aroma: null, quantity: 1 }],
       boxItems: [
-        { source: "catalog", refId: "vela-aromatica-100g", aroma: "Lavanda", quantity: 1 },
+        { source: "catalog", refId: "vela-aromatica:100g", aroma: "Lavanda", quantity: 1 },
         { source: "catalog", refId: "difusor-ultrassonico-premium", aroma: null, quantity: 1 }
       ]
     });

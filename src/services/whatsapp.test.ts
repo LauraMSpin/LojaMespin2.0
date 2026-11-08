@@ -83,3 +83,29 @@ describe("buildWhatsAppUrl", () => {
     expect(buildWhatsAppUrl("5500000000000", "oi")).toBeNull();
   });
 });
+
+describe("pedido com variantes (tamanho)", () => {
+  const refil: Product = {
+    ...velas,
+    id: "refil",
+    name: "Refil de Vela",
+    category: "refil",
+    variants: [
+      { id: "100g", label: "100g", price: 25 },
+      { id: "200g", label: "200g", price: 40 }
+    ]
+  };
+
+  it("separa os tamanhos e informa o escolhido em cada item", () => {
+    const details = getCartDetails(
+      [createLine("refil", "Lavanda", 2, {}, "200g"), createLine("refil", "Bambu", 1, {}, "100g")],
+      [refil]
+    );
+    const message = buildOrderMessage({ name: "Maria Silva", cep: "30100000" }, details, cartTotal(details));
+    expect(message).toContain("1. Refil de Vela (200g)");
+    expect(message).toContain("2. Refil de Vela (100g)");
+    expect(message).toContain("- Lavanda: 2 unidades");
+    expect(message).toContain("Valor: R$ 80,00");
+    expect(message).toContain("Valor: R$ 25,00");
+  });
+});

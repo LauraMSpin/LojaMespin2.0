@@ -1,12 +1,14 @@
 import type { Product } from "../types";
 import { normalizeText } from "../utils/format";
+import { hasVariants, startingPrice } from "./cart";
 
 /** Produtos com aromas, personalização ou composição (kit) exigem escolha antes de ir ao carrinho. */
 export function requiresSelection(product: Product): boolean {
   return (
     product.aromas.length > 0 ||
     (product.customization?.fields.length ?? 0) > 0 ||
-    (product.components?.length ?? 0) > 0
+    (product.components?.length ?? 0) > 0 ||
+    hasVariants(product)
   );
 }
 
@@ -83,8 +85,13 @@ export function filterProducts(
     if (filters.onlyChristmas && !p.isChristmas) return false;
     if (filters.onlyFeatured && !p.featured) return false;
     if (filters.onlyAvailable && !p.available) return false;
-    if (filters.minPrice !== null && (p.price === null || p.price < filters.minPrice)) return false;
-    if (filters.maxPrice !== null && (p.price === null || p.price > filters.maxPrice)) return false;
+    if (filters.minPrice !== null || filters.maxPrice !== null) {
+      const prices = hasVariants(p) ? (p.variants ?? []).map((v) => v.price) : p.price === null ? [] : [p.price];
+      const inRange = prices.some(
+        (price) => (filters.minPrice === null || price >= filters.minPrice) && (filters.maxPrice === null || price <= filters.maxPrice)
+      );
+      if (!inRange) return false;
+    }
     if (terms.length) {
       const score = searchScore(p, categoryNameOf(p.category), terms);
       if (score === 0) return false;
@@ -95,12 +102,14 @@ export function filterProducts(
 
   const byOrder = (a: Product, b: Product) => a.sortOrder - b.sortOrder;
   const priceAsc = (a: Product, b: Product) =>
-    (a.price ?? Number.POSITIVE_INFINITY) - (b.price ?? Number.POSITIVE_INFINITY);
+    (startingPrice(a) ?? Number.POSITIVE_INFINITY) - (startingPrice(b) ?? Number.POSITIVE_INFINITY);
   const priceDesc = (a: Product, b: Product) => {
-    if (a.price === null && b.price === null) return 0;
-    if (a.price === null) return 1;
-    if (b.price === null) return -1;
-    return b.price - a.price;
+    const pa = startingPrice(a);
+    const pb = startingPrice(b);
+    if (pa === null && pb === null) return 0;
+    if (pa === null) return 1;
+    if (pb === null) return -1;
+    return pb - pa;
   };
 
   result = [...result];

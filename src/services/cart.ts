@@ -3,7 +3,8 @@ import type {
   CartLine,
   CustomizationField,
   CustomizationValues,
-  Product
+  Product,
+  ProductVariant
 } from "../types";
 
 export const CART_STORAGE_KEY = "mespin:cart:v1";
@@ -41,25 +42,40 @@ export function customizationEntries(
 export function makeLineKey(
   productId: string,
   aroma: string | null,
-  customization: CustomizationValues
+  customization: CustomizationValues,
+  variantId: string | null = null
 ): string {
   const custom = FIELD_ORDER.map((f) => `${f}=${customization[f] ?? ""}`).join("&");
-  return `${productId}|${aroma ?? ""}|${custom}`;
+  return `${productId}|${aroma ?? ""}|${custom}${variantId ? `|v=${variantId}` : ""}`;
+}
+
+/** Menor preço do produto (o da variante mais barata, se houver variantes). */
+export function startingPrice(product: Product): number | null {
+  if (product.variants && product.variants.length > 0) return Math.min(...product.variants.map((v) => v.price));
+  return product.price;
+}
+
+export const hasVariants = (product: Product): boolean => (product.variants?.length ?? 0) > 0;
+
+export function findVariant(product: Product, variantId: string | null | undefined): ProductVariant | undefined {
+  return product.variants?.find((v) => v.id === variantId);
 }
 
 export function createLine(
   productId: string,
   aroma: string | null,
   quantity: number,
-  customization: CustomizationValues = {}
+  customization: CustomizationValues = {},
+  variantId: string | null = null
 ): CartLine {
   const clean = cleanCustomization(customization);
   return {
-    key: makeLineKey(productId, aroma, clean),
+    key: makeLineKey(productId, aroma, clean, variantId),
     productId,
     aroma,
     quantity,
-    customization: clean
+    customization: clean,
+    ...(variantId ? { variantId } : {})
   };
 }
 
@@ -115,11 +131,16 @@ export function getCartDetails(lines: CartLine[], products: Product[]): CartItem
     const product = products.find((p) => p.id === line.productId);
     if (!product || !product.available || product.price === null) continue;
     if (product.components && product.components.length > 0) continue;
+    const variant = hasVariants(product) ? findVariant(product, line.variantId) : undefined;
+    // Produto com variantes exige uma variante válida; sem ela a linha é ignorada.
+    if (hasVariants(product) && !variant) continue;
+    const unitPrice = variant ? variant.price : product.price;
     details.push({
       line,
       product,
-      unitPrice: product.price,
-      subtotal: roundMoney(product.price * line.quantity)
+      ...(variant ? { variant } : {}),
+      unitPrice,
+      subtotal: roundMoney(unitPrice * line.quantity)
     });
   }
   return details;
@@ -152,13 +173,14 @@ export function parseStoredCart(raw: string | null): CartLine[] {
         typeof (item as CartLine).quantity === "number" &&
         (item as CartLine).quantity > 0
       ) {
-        const { productId, aroma, quantity, customization } = item as CartLine;
+        const { productId, aroma, quantity, customization, variantId } = item as CartLine;
         lines.push(
           createLine(
             productId,
             typeof aroma === "string" ? aroma : null,
             quantity,
-            customization && typeof customization === "object" ? customization : {}
+            customization && typeof customization === "object" ? customization : {},
+            typeof variantId === "string" ? variantId : null
           )
         );
       }
