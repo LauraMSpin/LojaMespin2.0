@@ -271,6 +271,7 @@ export const PRODUCTS: Product[] = [
     id: "refil-vela-aromatica",
     name: "Refil de Vela Aromática",
     category: "refil",
+    image: "assets/products/produto-017.jpg",
     description: "Refil de vela aromática para reutilizar o seu copo. Escolha o tamanho e o aroma.",
     price: 28,
     variants: [

@@ -5,7 +5,7 @@ import { STORE_CONFIG } from "../../data/settings";
 import { useUI } from "../../context/UIContext";
 import { useCart } from "../../hooks/useCart";
 import { useDialogBehavior } from "../../hooks/useDialogBehavior";
-import { CUSTOMIZATION_LABELS, createLine, hasVariants } from "../../services/cart";
+import { CUSTOMIZATION_LABELS, createLine, startingPrice } from "../../services/cart";
 import { buildConsultMessage, storeWhatsAppUrl } from "../../services/whatsapp";
 import { isKit } from "../../services/kits";
 import KitDialog from "../KitModal/KitModal";
@@ -33,26 +33,43 @@ function ProductDialog({ product, onClose }: { product: Product; onClose: () => 
   const [singleQty, setSingleQty] = useState(1);
   const [custom, setCustom] = useState<CustomizationValues>({});
   const variants = product.variants ?? [];
-  const [variantId, setVariantId] = useState<string | null>(hasVariants(product) ? variants[0].id : null);
-  const variant = variants.find((v) => v.id === variantId);
-  const unitPrice = variant ? variant.price : product.price;
+  const hasSizes = variants.length > 0;
+  /** Produtos com tamanhos: quantidade por aroma e tamanho, ex.: "Lavanda|100g". */
+  const [sizeQty, setSizeQty] = useState<Record<string, number>>({});
+  const sizeKey = (aroma: string | null, variantId: string) => `${aroma ?? ""}|${variantId}`;
+  const sizeRows: (string | null)[] = hasAromas ? product.aromas : [null];
 
   const category = getCategory(product.category);
   const unavailable = !product.available;
   const onRequest = product.price === null;
-  const totalQty = hasAromas
-    ? product.aromas.reduce((sum, a) => sum + (aromaQty[a] ?? 0), 0)
-    : singleQty;
-  const total = onRequest ? 0 : (unitPrice as number) * totalQty;
+  const sizeEntries = hasSizes
+    ? sizeRows.flatMap((aroma) =>
+        variants.map((v) => ({ aroma, variant: v, quantity: sizeQty[sizeKey(aroma, v.id)] ?? 0 }))
+      )
+    : [];
+  const totalQty = hasSizes
+    ? sizeEntries.reduce((sum, e) => sum + e.quantity, 0)
+    : hasAromas
+      ? product.aromas.reduce((sum, a) => sum + (aromaQty[a] ?? 0), 0)
+      : singleQty;
+  const total = onRequest
+    ? 0
+    : hasSizes
+      ? sizeEntries.reduce((sum, e) => sum + e.quantity * e.variant.price, 0)
+      : (product.price as number) * totalQty;
   const canAdd = !unavailable && !onRequest && totalQty > 0;
 
   const handleAdd = () => {
     if (!canAdd) return;
-    const lines = hasAromas
-      ? product.aromas
-          .filter((a) => (aromaQty[a] ?? 0) > 0)
-          .map((a) => createLine(product.id, a, aromaQty[a], custom, variantId))
-      : [createLine(product.id, null, singleQty, custom, variantId)];
+    const lines = hasSizes
+      ? sizeEntries
+          .filter((e) => e.quantity > 0)
+          .map((e) => createLine(product.id, e.aroma, e.quantity, custom, e.variant.id))
+      : hasAromas
+        ? product.aromas
+            .filter((a) => (aromaQty[a] ?? 0) > 0)
+            .map((a) => createLine(product.id, a, aromaQty[a], custom))
+        : [createLine(product.id, null, singleQty, custom)];
     addLines(lines);
     showToast(`${product.name} adicionado ao carrinho`);
     onClose();
@@ -86,8 +103,11 @@ function ProductDialog({ product, onClose }: { product: Product; onClose: () => 
               <span className="pmodal__price-consult">Preço sob consulta</span>
             ) : (
               <>
-                {product.originalPrice && !variant && <s>{formatPrice(product.originalPrice)}</s>}
-                <strong>{formatPrice(unitPrice as number)}</strong>
+                {product.originalPrice && !hasSizes && <s>{formatPrice(product.originalPrice)}</s>}
+                <strong>
+                  {hasSizes ? "A partir de " : ""}
+                  {formatPrice(startingPrice(product) as number)}
+                </strong>
               </>
             )}
           </div>
@@ -105,28 +125,39 @@ function ProductDialog({ product, onClose }: { product: Product; onClose: () => 
             </a>
           ) : (
             <>
-              {variants.length > 0 && (
-                <fieldset className="pmodal__variants">
-                  <legend>Tamanho</legend>
-                  <div className="pmodal__variant-options">
-                    {variants.map((v) => (
-                      <label key={v.id} className={v.id === variantId ? "is-selected" : ""}>
-                        <input
-                          type="radio"
-                          name="variant"
-                          value={v.id}
-                          checked={v.id === variantId}
-                          onChange={() => setVariantId(v.id)}
-                        />
-                        <span>{v.label}</span>
-                        <small>{formatPrice(v.price)}</small>
-                      </label>
-                    ))}
-                  </div>
+              {hasSizes ? (
+                <fieldset className="pmodal__aromas pmodal__aromas--sizes">
+                  <legend>{hasAromas ? "Escolha aromas, tamanhos e quantidades" : "Escolha tamanhos e quantidades"}</legend>
+                  <ul>
+                    {sizeRows.map((aroma) => {
+                      const rowName = aroma ?? product.name;
+                      const selected = variants.some((v) => (sizeQty[sizeKey(aroma, v.id)] ?? 0) > 0);
+                      return (
+                        <li key={rowName} className={selected ? "is-selected" : ""}>
+                          {hasAromas && <span className="pmodal__size-name">{aroma}</span>}
+                          <div className="pmodal__sizes">
+                            {variants.map((v) => (
+                              <div key={v.id} className="pmodal__size">
+                                <span>
+                                  {v.label}
+                                  <small>{formatPrice(v.price)}</small>
+                                </span>
+                                <QuantityStepper
+                                  size="sm"
+                                  label={`${rowName} ${v.label}`}
+                                  value={sizeQty[sizeKey(aroma, v.id)] ?? 0}
+                                  max={max}
+                                  onChange={(q) => setSizeQty((prev) => ({ ...prev, [sizeKey(aroma, v.id)]: q }))}
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        </li>
+                      );
+                    })}
+                  </ul>
                 </fieldset>
-              )}
-
-              {hasAromas ? (
+              ) : hasAromas ? (
                 <fieldset className="pmodal__aromas">
                   <legend>Escolha os aromas e quantidades</legend>
                   <ul>

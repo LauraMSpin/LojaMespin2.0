@@ -278,62 +278,36 @@
   }
 }
 
-.pmodal__variants {
-  min-width: 0;
-  margin: 0;
-  padding: 0;
-  border: 0;
+.pmodal__aromas--sizes li {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
 }
 
-.pmodal__variants legend {
-  padding: 0 0 6px;
-  font-size: 0.78rem;
+.pmodal__size-name {
   font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--brown);
 }
 
-.pmodal__variant-options {
+.pmodal__sizes {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pmodal__size {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-weight: 400;
+}
+
+.pmodal__size > span {
+  display: flex;
+  align-items: baseline;
   gap: 8px;
 }
 
-.pmodal__variant-options label {
-  position: relative;
-  display: flex;
-  flex: 1 1 110px;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  padding: 8px 12px;
-  border: 1.5px solid var(--tan);
-  border-radius: var(--radius);
-  background: var(--white);
-  font-weight: 700;
-  cursor: pointer;
-  transition: border-color 0.2s, background 0.2s;
-}
-
-.pmodal__variant-options label small {
-  font-weight: 400;
+.pmodal__size small {
   color: var(--text-muted);
-}
-
-.pmodal__variant-options label.is-selected {
-  border-color: var(--terracotta);
-  background: var(--cream);
-}
-
-.pmodal__variant-options input {
-  position: absolute;
-  opacity: 0;
-  inset: 0;
-  cursor: pointer;
-}
-
-.pmodal__variant-options label:focus-within {
-  outline: 2px solid var(--terracotta);
-  outline-offset: 2px;
 }
