@@ -70,6 +70,9 @@ export default function Header() {
       <button type="button" className="site-nav__link" onClick={() => goToSection("sobre")}>
         Sobre
       </button>
+      <button type="button" className="site-nav__link" onClick={() => goToSection("duvidas")}>
+        Dúvidas
+      </button>
       <button type="button" className="site-nav__link" onClick={() => goToSection("contato")}>
         Contato
       </button>

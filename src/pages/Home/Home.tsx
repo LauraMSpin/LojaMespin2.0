@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import CategoryNavigation from "../../components/CategoryNavigation/CategoryNavigation";
 import Hero from "../../components/Hero/Hero";
+import MespitoFaq from "../../components/MespitoFaq/MespitoFaq";
 import { Icon } from "../../components/Icons/Icon";
 import ProductGrid from "../../components/ProductGrid/ProductGrid";
 import Reveal from "../../components/Reveal";
@@ -122,6 +123,8 @@ export default function Home() {
           </ul>
         </Reveal>
       </section>
+
+      <MespitoFaq />
 
       <section id="contato" className="contact container">
         <Reveal>

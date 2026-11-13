@@ -52,6 +52,11 @@ export default function Footer() {
               </Link>
             </li>
             <li>
+              <Link to="/" state={{ scrollTo: "duvidas" }}>
+                Dúvidas
+              </Link>
+            </li>
+            <li>
               <Link to="/" state={{ scrollTo: "contato" }}>
                 Contato
               </Link>

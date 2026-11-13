@@ -1,0 +1,144 @@
+.mfaq {
+  padding-top: 72px;
+  padding-bottom: 24px;
+}
+
+.mfaq__inner {
+  display: grid;
+  grid-template-columns: minmax(220px, 320px) 1fr;
+  align-items: center;
+  gap: 40px;
+}
+
+.mfaq__mascot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.mfaq__mascot img {
+  width: min(100%, 300px);
+  height: auto;
+  filter: drop-shadow(0 14px 18px rgba(62, 39, 35, 0.18));
+}
+
+.mfaq__bubble {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 18px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--white);
+  box-shadow: var(--shadow-sm);
+  text-align: center;
+  font-size: 0.92rem;
+  color: var(--text-muted);
+}
+
+.mfaq__bubble strong {
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+  color: var(--brown);
+}
+
+/* Pontinha do balão apontando para o Mespito */
+.mfaq__bubble::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -8px;
+  width: 14px;
+  height: 14px;
+  transform: translateX(-50%) rotate(45deg);
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  background: var(--white);
+}
+
+.mfaq__list {
+  margin-top: 22px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--white);
+}
+
+.mfaq__list li + li {
+  border-top: 1px solid var(--line);
+}
+
+.mfaq__list h3 {
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.mfaq__list button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-height: 56px;
+  padding: 12px 18px;
+  text-align: left;
+}
+
+.mfaq__list button svg {
+  flex-shrink: 0;
+  transition: transform 0.25s;
+}
+
+.mfaq__list li.is-open {
+  background: var(--cream);
+}
+
+.mfaq__list li.is-open button svg {
+  transform: rotate(180deg);
+}
+
+.mfaq__list [role="region"] {
+  padding: 0 18px 16px;
+  color: var(--text-muted);
+  animation: mfaq-open 0.25s ease;
+}
+
+@keyframes mfaq-open {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mfaq__list [role="region"] {
+    animation: none;
+  }
+}
+
+.mfaq__cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 16px;
+  margin-top: 20px;
+  font-weight: 700;
+  color: var(--brown);
+}
+
+@media (max-width: 800px) {
+  .mfaq {
+    padding-top: 56px;
+  }
+
+  .mfaq__inner {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+
+  .mfaq__mascot img {
+    width: min(70%, 220px);
+  }
+}
