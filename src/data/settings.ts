@@ -97,5 +97,25 @@ export const HERO_SLIDES: HeroSlide[] = [
     ctaLabel: "VER VELAS",
     layout: "right",
     action: { type: "route", to: "/catalogo?categoria=velas" }
+  },
+  {
+    id: "slide-personalizados",
+    image: "assets/banners/hero-personalizados.jpg",
+    alt: "Velas e kits personalizados Mespín: vela com monograma, lembrancinha com nome e caixa de presente",
+    title: "Presentes únicos, feitos para você",
+    subtitle: "Personalize aromas, etiquetas e detalhes para criar lembranças exclusivas.",
+    ctaLabel: "CONHECER PERSONALIZADOS",
+    layout: "right",
+    action: { type: "route", to: "/personalizados" }
+  },
+  {
+    id: "slide-lembrancinhas",
+    image: "assets/banners/hero-lembrancinhas.jpg",
+    alt: "Lembrancinhas personalizadas Mespín: lata com nome e data, potinho com mensagem e caixa com velas",
+    title: "Lembrancinhas com o seu nome",
+    subtitle: "Casamentos, aniversários e datas especiais, com nome, data e mensagem.",
+    ctaLabel: "PEDIR LEMBRANCINHAS",
+    layout: "right",
+    action: { type: "route", to: "/personalizados" }
   }
 ];
