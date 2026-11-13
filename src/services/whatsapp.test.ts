@@ -5,6 +5,7 @@ import {
   formatCep,
   isValidCep,
   isValidWhatsAppNumber,
+  listGiftOptions,
   validateCustomer
 } from "./whatsapp";
 import { cartTotal, createLine, getCartDetails } from "./cart";
@@ -107,5 +108,27 @@ describe("pedido com variantes (tamanho)", () => {
     expect(message).toContain("- Lavanda: 2 unidades");
     expect(message).toContain("Valor: R$ 80,00");
     expect(message).toContain("Valor: R$ 25,00");
+  });
+});
+
+describe("pedido para presente", () => {
+  const lines = [createLine("vela", "Lavanda", 2), createLine("kit", null, 1)];
+  const details = getCartDetails(lines, [velas, kit]);
+  const total = cartTotal(details);
+  const customer = { name: "Maria Silva", cep: "30100000" };
+
+  it("lista os itens escolhidos e marca só eles", () => {
+    const options = listGiftOptions(details);
+    expect(options.map((o) => o.label)).toEqual(["Vela Aromática 100g", "Kit Vela Dupla"]);
+    const msg = buildOrderMessage(customer, details, total, [], [], [options[1].key]);
+    expect(msg).toContain("*PEDIDO PARA PRESENTE* 🎁\n\n- Kit Vela Dupla\n");
+    expect(msg).toContain("2. Kit Vela Dupla 🎁");
+    expect(msg).toContain("1. Vela Aromática 100g\n");
+  });
+
+  it("sem itens marcados não menciona presente", () => {
+    const msg = buildOrderMessage(customer, details, total);
+    expect(msg).not.toContain("PRESENTE");
+    expect(msg).not.toContain("🎁");
   });
 });

@@ -45,6 +45,7 @@ export function validateCustomer(customer: CustomerData): CustomerErrors {
 const unitsText = (n: number) => `${n} ${n === 1 ? "unidade" : "unidades"}`;
 
 interface OrderGroup {
+  key: string;
   product: Product;
   variant?: ProductVariant;
   entries: CartItemDetail[];
@@ -58,9 +59,34 @@ function groupDetails(details: CartItemDetail[]): OrderGroup[] {
     const key = `${detail.product.id}|${detail.variant?.id ?? ""}|${custom}`;
     const group = groups.get(key);
     if (group) group.entries.push(detail);
-    else groups.set(key, { product: detail.product, variant: detail.variant, entries: [detail] });
+    else groups.set(key, { key, product: detail.product, variant: detail.variant, entries: [detail] });
   }
   return [...groups.values()];
+}
+
+export interface GiftOption {
+  /** "p:" produto agrupado, "k:" kit, "c:" personalizado. */
+  key: string;
+  label: string;
+}
+
+/** Itens do carrinho que o cliente pode marcar como presente (agrupados como no pedido enviado). */
+export function listGiftOptions(
+  details: CartItemDetail[],
+  kitGroups: KitGroupDetail[] = [],
+  customOrders: CustomOrderDetail[] = []
+): GiftOption[] {
+  return [
+    ...groupDetails(details).map((g) => ({
+      key: `p:${g.key}`,
+      label: `${g.product.name}${g.variant ? ` (${g.variant.label})` : ""}`
+    })),
+    ...kitGroups.map((k) => ({
+      key: `k:${k.group.key}`,
+      label: `${k.product.name} — ${k.units.length} ${k.units.length === 1 ? "unidade" : "unidades"}`
+    })),
+    ...customOrders.map((o) => ({ key: `c:${o.line.key}`, label: o.product.name }))
+  ];
 }
 
 export function buildOrderMessage(
@@ -68,8 +94,12 @@ export function buildOrderMessage(
   details: CartItemDetail[],
   total: number,
   customOrders: CustomOrderDetail[] = [],
-  kitGroups: KitGroupDetail[] = []
+  kitGroups: KitGroupDetail[] = [],
+  giftKeys: string[] = []
 ): string {
+  const gifts = new Set(giftKeys);
+  const giftItems = listGiftOptions(details, kitGroups, customOrders).filter((o) => gifts.has(o.key));
+  const GIFT = " 🎁";
   const hasStandard = details.length > 0 || kitGroups.length > 0;
   const hasCustom = customOrders.length > 0;
   const lines: string[] = [];
@@ -84,12 +114,17 @@ export function buildOrderMessage(
   lines.push("*DADOS DO CLIENTE*", "");
   lines.push(`Nome: ${customer.name.trim()}`);
   lines.push(`CEP: ${formatCep(customer.cep)}`, "");
+  if (giftItems.length > 0) {
+    lines.push("*PEDIDO PARA PRESENTE* 🎁", "");
+    for (const item of giftItems) lines.push(`- ${item.label}`);
+    lines.push("");
+  }
 
   if (hasStandard) {
     lines.push("*MEU PEDIDO*", "");
     const standardGroups = groupDetails(details);
     standardGroups.forEach((group, index) => {
-      lines.push(`${index + 1}. ${group.product.name}${group.variant ? ` (${group.variant.label})` : ""}`);
+      lines.push(`${index + 1}. ${group.product.name}${group.variant ? ` (${group.variant.label})` : ""}${gifts.has(`p:${group.key}`) ? GIFT : ""}`);
       for (const entry of group.entries) {
         lines.push(
           entry.line.aroma
@@ -102,12 +137,16 @@ export function buildOrderMessage(
       const groupTotal = group.entries.reduce((sum, e) => sum + e.subtotal, 0);
       lines.push(`Valor: ${formatPrice(groupTotal)}`, "");
     });
-    kitGroups.forEach((kit, index) => lines.push(...kitGroupLines(kit, standardGroups.length + index + 1), ""));
+    kitGroups.forEach((kit, index) =>
+      lines.push(...kitGroupLines(kit, standardGroups.length + index + 1, gifts.has(`k:${kit.group.key}`)), "")
+    );
   }
 
   if (hasCustom) {
     lines.push("*PRODUTOS PERSONALIZADOS*", "");
-    customOrders.forEach((order, index) => lines.push(...customOrderLines(order, index + 1), ""));
+    customOrders.forEach((order, index) =>
+      lines.push(...customOrderLines(order, index + 1, gifts.has(`c:${order.line.key}`)), "")
+    );
   }
 
   lines.push("*RESUMO*", "");
@@ -134,9 +173,12 @@ export function buildOrderMessage(
 }
 
 /** Cada kit é descrito unidade por unidade, com os itens e aromas de cada uma. */
-function kitGroupLines(kit: KitGroupDetail, index: number): string[] {
+function kitGroupLines(kit: KitGroupDetail, index: number, gift = false): string[] {
   const count = kit.units.length;
-  const out: string[] = [`${index}. ${kit.product.name} — ${count} ${count === 1 ? "unidade" : "unidades"}`, ""];
+  const out: string[] = [
+    `${index}. ${kit.product.name} — ${count} ${count === 1 ? "unidade" : "unidades"}${gift ? " 🎁" : ""}`,
+    ""
+  ];
   for (const unit of kit.units) {
     out.push(`*${unit.label}*`);
     for (const item of unit.items) out.push(item.value ? `- ${item.name}: ${item.value}` : `- ${item.name}`);
@@ -147,9 +189,9 @@ function kitGroupLines(kit: KitGroupDetail, index: number): string[] {
   return out;
 }
 
-function customOrderLines(order: CustomOrderDetail, index: number): string[] {
+function customOrderLines(order: CustomOrderDetail, index: number, gift = false): string[] {
   const { product, line } = order;
-  const out: string[] = [`${index}. ${product.name}`];
+  const out: string[] = [`${index}. ${product.name}${gift ? " 🎁" : ""}`];
 
   if (product.kind === "box") {
     out.push(`- Quantidade de caixas: ${line.units[0]?.quantity ?? 0}`);

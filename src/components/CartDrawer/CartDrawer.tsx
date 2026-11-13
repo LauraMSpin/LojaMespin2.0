@@ -11,6 +11,7 @@ import {
   buildOrderMessage,
   buildWhatsAppUrl,
   formatCep,
+  listGiftOptions,
   validateCustomer,
   type CustomerErrors
 } from "../../services/whatsapp";
@@ -370,6 +371,9 @@ export default function CartDrawer() {
   const [customer, setCustomer] = useState<CustomerData>({ name: "", cep: "" });
   const [errors, setErrors] = useState<CustomerErrors>({});
   const [sendError, setSendError] = useState<string | null>(null);
+  const [isGift, setIsGift] = useState(false);
+  const [giftKeys, setGiftKeys] = useState<string[]>([]);
+  const [giftError, setGiftError] = useState(false);
 
   useDialogBehavior(panelRef, isOpen, closeCart);
 
@@ -384,17 +388,37 @@ export default function CartDrawer() {
     if (isEmpty && (step === "identify" || step === "review")) setStep("cart");
   }, [isEmpty, step]);
 
-  const message = useMemo(
-    () => (isEmpty ? "" : buildOrderMessage(customer, items, total, customItems, kitItems)),
-    [customer, items, total, customItems, kitItems, isEmpty]
+  const giftOptions = useMemo(() => listGiftOptions(items, kitItems, customItems), [items, kitItems, customItems]);
+  // Só vale o que ainda está no carrinho (itens removidos saem da seleção).
+  const activeGiftKeys = useMemo(
+    () => (isGift ? giftOptions.filter((o) => giftKeys.includes(o.key)).map((o) => o.key) : []),
+    [isGift, giftOptions, giftKeys]
   );
+
+  const message = useMemo(
+    () => (isEmpty ? "" : buildOrderMessage(customer, items, total, customItems, kitItems, activeGiftKeys)),
+    [customer, items, total, customItems, kitItems, isEmpty, activeGiftKeys]
+  );
+
+  const toggleGift = (on: boolean) => {
+    setIsGift(on);
+    setGiftError(false);
+    if (on && activeGiftKeys.length === 0) setGiftKeys(giftOptions.map((o) => o.key));
+  };
+
+  const toggleGiftItem = (key: string, on: boolean) => {
+    setGiftError(false);
+    setGiftKeys((keys) => (on ? [...keys.filter((k) => k !== key), key] : keys.filter((k) => k !== key)));
+  };
   const whatsappUrl = useMemo(() => buildWhatsAppUrl(STORE_CONFIG.whatsapp, message), [message]);
 
   const submitIdentify = (event: FormEvent) => {
     event.preventDefault();
     const found = validateCustomer(customer);
     setErrors(found);
-    if (Object.keys(found).length === 0) setStep("review");
+    const missingGift = isGift && activeGiftKeys.length === 0;
+    setGiftError(missingGift);
+    if (Object.keys(found).length === 0 && !missingGift) setStep("review");
   };
 
   const sendToWhatsApp = () => {
@@ -415,6 +439,8 @@ export default function CartDrawer() {
 
   const finishAndClear = () => {
     clearCart();
+    setIsGift(false);
+    setGiftKeys([]);
     setStep("cart");
     closeCart();
   };
@@ -523,6 +549,39 @@ export default function CartDrawer() {
                 </em>
               )}
             </label>
+            <fieldset className="cart-gift">
+              <legend>O pedido é para presente?</legend>
+              <div className="cart-gift__choice">
+                <label>
+                  <input type="radio" name="gift" checked={!isGift} onChange={() => toggleGift(false)} /> Não
+                </label>
+                <label>
+                  <input type="radio" name="gift" checked={isGift} onChange={() => toggleGift(true)} /> Sim, é presente
+                </label>
+              </div>
+              {isGift && (
+                <>
+                  <p className="cart-form__note">Quais itens serão presente?</p>
+                  <ul className="cart-gift__items">
+                    {giftOptions.map((option) => (
+                      <li key={option.key}>
+                        <label>
+                          <input
+                            type="checkbox"
+                            checked={activeGiftKeys.includes(option.key)}
+                            onChange={(e) => toggleGiftItem(option.key, e.target.checked)}
+                          />
+                          {option.label}
+                        </label>
+                      </li>
+                    ))}
+                  </ul>
+                  {giftError && (
+                    <em role="alert">Marque ao menos um item que será presente ou escolha &quot;Não&quot;.</em>
+                  )}
+                </>
+              )}
+            </fieldset>
             <p className="cart-form__note">Não pedimos dados de pagamento nem documentos.</p>
             <div className="cart-form__actions">
               <button type="button" className="btn btn--ghost" onClick={() => setStep("cart")}>
@@ -543,6 +602,18 @@ export default function CartDrawer() {
                 <p>{customer.name.trim()}</p>
                 <p>CEP {formatCep(customer.cep)}</p>
               </section>
+              {activeGiftKeys.length > 0 && (
+                <section>
+                  <h3>Para presente 🎁</h3>
+                  <ul className="review-gift">
+                    {giftOptions
+                      .filter((o) => activeGiftKeys.includes(o.key))
+                      .map((o) => (
+                        <li key={o.key}>{o.label}</li>
+                      ))}
+                  </ul>
+                </section>
+              )}
               {(items.length > 0 || kitItems.length > 0) && (
                 <section>
                   <h3>Produtos</h3>
