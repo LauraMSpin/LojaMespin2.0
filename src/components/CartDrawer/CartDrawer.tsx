@@ -110,7 +110,11 @@ function customDescription(order: CustomOrderDetail): string[] {
       out.push(`${b.quantity}x ${b.name}${b.aroma ? ` (${b.aroma})` : ""}`);
     }
   } else {
-    for (const u of line.units) out.push(u.aroma ? `${u.aroma}: ${u.quantity} ${unitWord(u.quantity)}` : "");
+    for (const u of line.units) {
+      const size = product.variants?.find((v) => v.id === u.variantId)?.label;
+      const name = [u.aroma, size].filter(Boolean).join(" ");
+      out.push(name ? `${name}: ${u.quantity} ${unitWord(u.quantity)}` : "");
+    }
   }
   for (const field of ["names", "date", "message"] as const) {
     if (line.label[field]) out.push(`${LABEL_FIELD_INFO[field].label}: ${line.label[field]}`);

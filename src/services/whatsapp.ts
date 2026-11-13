@@ -161,7 +161,9 @@ function customOrderLines(order: CustomOrderDetail, index: number): string[] {
     }
   } else {
     for (const unit of line.units) {
-      out.push(unit.aroma ? `- ${unit.aroma}: ${unitsText(unit.quantity)}` : `- Quantidade: ${unit.quantity}`);
+      const size = product.variants?.find((v) => v.id === unit.variantId)?.label;
+      const name = [unit.aroma, size].filter(Boolean).join(" ");
+      out.push(name ? `- ${name}: ${unitsText(unit.quantity)}` : `- Quantidade: ${unit.quantity}`);
     }
     if (line.units.length > 1) out.push(`- Quantidade total: ${unitsText(order.totalQuantity)}`);
   }

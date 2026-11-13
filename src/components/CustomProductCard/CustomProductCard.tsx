@@ -28,10 +28,12 @@ function customizationSummary(product: CustomProduct): string[] {
 export default function CustomProductCard({ product }: { product: CustomProduct }) {
   const { openCustom } = useUI();
   const unavailable = !product.available;
+  const variantPrices = (product.variants ?? []).map((v) => v.price);
+  const fromPrice = variantPrices.length > 0 ? Math.min(...variantPrices) : product.basePrice;
   const priceText =
-    product.basePrice === null
+    fromPrice === null
       ? "Solicite um orçamento"
-      : `${product.priceFrom ? "A partir de " : ""}${formatCents(Math.round(product.basePrice * 100))}${product.kind === "box" ? "" : " cada"}`;
+      : `${product.priceFrom || variantPrices.length > 0 ? "A partir de " : ""}${formatCents(Math.round(fromPrice * 100))}${product.kind === "box" ? "" : " cada"}`;
 
   return (
     <article className={`product-card custom-card ${unavailable ? "is-soldout" : ""}`}>

@@ -167,6 +167,8 @@ export interface CustomProduct {
   quantityStep: number;
   /** Preço unitário em reais. `null` = "Solicite um orçamento". */
   basePrice: number | null;
+  /** Tamanhos com preço próprio (substituem `basePrice` no cálculo). */
+  variants?: ProductVariant[];
   /** Exibe "A partir de" (ex.: caixa, cujo valor soma os itens). */
   priceFrom?: boolean;
   discountTiers: CustomDiscountTier[];
@@ -187,6 +189,7 @@ export type CustomLabel = Partial<Record<CustomLabelField, string>>;
 
 export interface CustomUnit {
   aroma: string | null;
+  variantId?: string | null;
   quantity: number;
 }
 

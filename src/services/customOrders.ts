@@ -59,7 +59,11 @@ export function createCustomLine(input: NewCustomLine): CustomLine {
   return {
     key: input.key ?? makeCustomKey(input.productId),
     productId: input.productId,
-    units: input.units.filter((u) => u.quantity > 0).map((u) => ({ aroma: u.aroma, quantity: Math.floor(u.quantity) })),
+    units: input.units.filter((u) => u.quantity > 0).map((u) => ({
+      aroma: u.aroma,
+      quantity: Math.floor(u.quantity),
+      ...(u.variantId ? { variantId: u.variantId } : {})
+    })),
     label: cleanLabel(input.label),
     packaging: (input.packaging ?? "").trim().slice(0, TEXT_LIMITS.packaging),
     hasReference: Boolean(input.hasReference),
@@ -162,13 +166,39 @@ export function computeCustomOrder(
     }
   }
 
-  const baseCents = product.basePrice === null ? null : toCents(product.basePrice);
+  const variants = product.variants ?? [];
+  const variantCents = (id: string | null | undefined) => {
+    const v = variants.find((x) => x.id === id);
+    return v ? toCents(v.price) : null;
+  };
+  let baseCents = product.basePrice === null ? null : toCents(product.basePrice);
+  let rawSubtotal: number | null = null;
+  if (variants.length > 0 && product.kind !== "box") {
+    // Cada unidade usa o preço do seu tamanho; o preço unitário exibido é a média.
+    const prices = line.units.map((u) => variantCents(u.variantId));
+    if (prices.every((p) => p !== null) && quantity > 0) {
+      rawSubtotal = line.units.reduce((sum, u, i) => sum + (prices[i] as number) * u.quantity, 0);
+      baseCents = Math.round(rawSubtotal / quantity);
+    } else {
+      baseCents = Math.min(...variants.map((v) => toCents(v.price)));
+    }
+  }
   const unitCents = baseCents === null ? null : baseCents + itemsCents;
   const discountPercent = unitCents === null ? 0 : discountFor(product, quantity);
   const finalUnitCents =
     unitCents === null ? null : Math.round((unitCents * (100 - discountPercent)) / 100);
-  const subtotalCents = finalUnitCents === null ? null : finalUnitCents * quantity;
-  const savingsCents = unitCents === null || finalUnitCents === null ? 0 : (unitCents - finalUnitCents) * quantity;
+  const subtotalCents =
+    finalUnitCents === null
+      ? null
+      : rawSubtotal !== null
+        ? Math.round((rawSubtotal * (100 - discountPercent)) / 100)
+        : finalUnitCents * quantity;
+  const savingsCents =
+    unitCents === null || finalUnitCents === null
+      ? 0
+      : rawSubtotal !== null
+        ? rawSubtotal - (subtotalCents ?? 0)
+        : (unitCents - finalUnitCents) * quantity;
 
   return {
     line,
@@ -179,7 +209,7 @@ export function computeCustomOrder(
     finalUnitCents,
     subtotalCents,
     savingsCents,
-    isFrom: Boolean(product.priceFrom) || pendingItems.length > 0,
+    isFrom: Boolean(product.priceFrom) || pendingItems.length > 0 || (variants.length > 0 && rawSubtotal === null),
     boxItems,
     pendingItems
   };
@@ -227,6 +257,7 @@ export function validateCustomLine(line: CustomLine, product: CustomProduct): st
     return errors;
   }
 
+  const variants = product.variants ?? [];
   if (line.units.length === 0) {
     errors.push(
       product.options.aromas.length > 0
@@ -241,7 +272,12 @@ export function validateCustomLine(line: CustomLine, product: CustomProduct): st
     if (total < min) errors.push(`Quantidade mínima para este produto: ${min} ${unitWord(min)}.`);
   }
   for (const unit of line.units) {
-    const name = unit.aroma ?? product.name;
+    const size = variants.find((v) => v.id === unit.variantId)?.label;
+    const name = [unit.aroma ?? product.name, size].filter(Boolean).join(" ");
+    if (variants.length > 0 && !size) {
+      errors.push("Tamanho indisponível para este produto.");
+      continue;
+    }
     if (product.options.aromas.length > 0 && (!unit.aroma || !product.options.aromas.includes(unit.aroma))) {
       errors.push("Aroma indisponível para este produto.");
       continue;
@@ -294,7 +330,11 @@ export function parseStoredCustomCart(raw: string | null): CustomLine[] {
       if (typeof l.key !== "string" || typeof l.productId !== "string" || !Array.isArray(l.units)) continue;
       const units = l.units
         .filter((u): u is CustomUnit => !!u && isPositiveInt((u as CustomUnit).quantity))
-        .map((u) => ({ aroma: typeof u.aroma === "string" ? u.aroma : null, quantity: u.quantity }));
+        .map((u) => ({
+          aroma: typeof u.aroma === "string" ? u.aroma : null,
+          quantity: u.quantity,
+          variantId: typeof u.variantId === "string" ? u.variantId : null
+        }));
       if (units.length === 0) continue;
       const boxItems = (Array.isArray(l.boxItems) ? l.boxItems : [])
         .filter(

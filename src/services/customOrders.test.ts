@@ -261,3 +261,34 @@ describe("mensagem do WhatsApp com personalizados", () => {
     expect(msg.endsWith("Aguardo as informações para finalizar a compra. Obrigada!")).toBe(true);
   });
 });
+
+describe("tamanhos em personalizados", () => {
+  const vela = CUSTOM_PRODUCTS.find((p) => p.id === "vela-personalizada") as CustomProduct;
+
+  it("cada unidade usa o preço do seu tamanho", () => {
+    const line = createCustomLine({
+      productId: vela.id,
+      units: [
+        { aroma: "Lavanda", variantId: "100g", quantity: 2 },
+        { aroma: "Lavanda", variantId: "200g", quantity: 1 }
+      ]
+    });
+    const order = computeCustomOrder(line, vela);
+    expect(order.subtotalCents).toBe(2 * 3600 + 7000);
+    expect(validateCustomLine(line, vela)).toEqual([]);
+  });
+
+  it("recusa unidade sem tamanho válido", () => {
+    const line = createCustomLine({ productId: vela.id, units: [{ aroma: "Lavanda", quantity: 1 }] });
+    expect(validateCustomLine(line, vela)).toContain("Tamanho indisponível para este produto.");
+  });
+
+  it("preserva o tamanho ao ler o carrinho salvo", () => {
+    const line = createCustomLine({
+      productId: vela.id,
+      units: [{ aroma: "Lavanda", variantId: "200g", quantity: 1 }]
+    });
+    const [back] = parseStoredCustomCart(JSON.stringify([line]));
+    expect(back.units[0].variantId).toBe("200g");
+  });
+});

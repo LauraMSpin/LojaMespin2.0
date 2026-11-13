@@ -53,10 +53,17 @@ function CustomDialog({
   const hasAromas = aromas.length > 0;
   const perAroma = product.minimumScope === "perAroma";
   const sources = useMemo(() => (isBox ? getBoxSources() : []), [isBox]);
+  const variants = product.variants ?? [];
+  const hasSizes = variants.length > 0 && !isBox;
+  const sizeKey = (aroma: string | null, variantId: string | null) => `${aroma ?? ""}|${variantId ?? ""}`;
+  const sizeRows: (string | null)[] = hasAromas ? aromas : [null];
 
   const [aromaQty, setAromaQty] = useState<Record<string, number>>(() => {
     const result: Record<string, number> = {};
-    for (const u of editLine?.units ?? []) if (u.aroma) result[u.aroma] = u.quantity;
+    for (const u of editLine?.units ?? []) {
+      if (hasSizes) result[sizeKey(u.aroma, u.variantId ?? null)] = u.quantity;
+      else if (u.aroma) result[u.aroma] = u.quantity;
+    }
     return result;
   });
   const [singleQty, setSingleQty] = useState(
@@ -73,8 +80,13 @@ function CustomDialog({
   });
 
   const draft = useMemo(() => {
-    const units =
-      hasAromas && !isBox
+    const units = hasSizes
+      ? sizeRows.flatMap((a) =>
+          variants
+            .filter((v) => (aromaQty[sizeKey(a, v.id)] ?? 0) > 0)
+            .map((v) => ({ aroma: a, variantId: v.id, quantity: aromaQty[sizeKey(a, v.id)] }))
+        )
+      : hasAromas && !isBox
         ? aromas.filter((a) => (aromaQty[a] ?? 0) > 0).map((a) => ({ aroma: a, quantity: aromaQty[a] }))
         : [{ aroma: null, quantity: singleQty }];
     const boxItems: BoxItem[] = isBox
@@ -95,7 +107,7 @@ function CustomDialog({
       notes,
       boxItems
     });
-  }, [aromaQty, singleQty, label, packaging, hasReference, notes, boxSel, sources, aromas, hasAromas, isBox, product.id, editLine?.key]);
+  }, [aromaQty, singleQty, label, hasSizes, variants, sizeRows, packaging, hasReference, notes, boxSel, sources, aromas, hasAromas, isBox, product.id, editLine?.key]);
 
   const detail = useMemo(() => computeCustomOrder(draft, product, sources), [draft, product, sources]);
   const errors = useMemo(() => validateCustomLine(draft, product), [draft, product]);
@@ -146,8 +158,8 @@ function CustomDialog({
               <span className="pmodal__price-consult">Solicite um orçamento</span>
             ) : (
               <strong>
-                {product.priceFrom ? "A partir de " : ""}
-                {formatCents(Math.round(product.basePrice * 100))}
+                {product.priceFrom || hasSizes ? "A partir de " : ""}
+                {formatCents(Math.round((hasSizes ? Math.min(...variants.map((v) => v.price)) : product.basePrice) * 100))}
                 {!isBox && <small> / unidade</small>}
               </strong>
             )}
@@ -248,6 +260,41 @@ function CustomDialog({
                     </ul>
                   </fieldset>
                 </>
+              ) : hasSizes ? (
+                <fieldset className="pmodal__aromas pmodal__aromas--sizes">
+                  <legend>{hasAromas ? "Escolha aromas, tamanhos e quantidades" : "Escolha tamanhos e quantidades"}</legend>
+                  <ul>
+                    {sizeRows.map((aroma) => {
+                      const rowName = aroma ?? product.name;
+                      const selected = variants.some((v) => (aromaQty[sizeKey(aroma, v.id)] ?? 0) > 0);
+                      return (
+                        <li key={rowName} className={selected ? "is-selected" : ""}>
+                          {hasAromas && <span className="pmodal__size-name">{aroma}</span>}
+                          <div className="pmodal__sizes">
+                            {variants.map((v) => (
+                              <div key={v.id} className="pmodal__size">
+                                <span>
+                                  {v.label}
+                                  <small>{formatCents(Math.round(v.price * 100))}</small>
+                                </span>
+                                <QuantityStepper
+                                  size="sm"
+                                  label={`${rowName} ${v.label}`}
+                                  max={max}
+                                  step={product.quantityStep}
+                                  floor={perAroma ? min : 0}
+                                  value={aromaQty[sizeKey(aroma, v.id)] ?? 0}
+                                  editable
+                                  onChange={(q) => setAromaQty((prev) => ({ ...prev, [sizeKey(aroma, v.id)]: q }))}
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </fieldset>
               ) : hasAromas ? (
                 <fieldset className="pmodal__aromas">
                   <legend>Escolha os aromas e quantidades</legend>

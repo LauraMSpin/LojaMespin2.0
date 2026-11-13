@@ -4,6 +4,8 @@ import type { CustomProduct } from "../types";
  * PRODUTOS PERSONALIZADOS (sob encomenda)
  *
  * - basePrice: reais por unidade. `null` = "Solicite um orçamento".
+ * - variants: tamanhos com preço próprio (ex.: { id: "100g", label: "100g", price: 36 }). O cliente escolhe
+ *   aroma + tamanho; o valor de cada unidade vem do tamanho e `basePrice` serve só de referência.
  * - minimumQuantity + minimumScope: "perAroma" = mínimo para cada aroma escolhido;
  *   "total" = mínimo para o total do pedido.
  * - discountTiers: faixas de desconto por quantidade total. Vazio = sem desconto
@@ -119,7 +121,11 @@ export const CUSTOM_PRODUCTS: CustomProduct[] = [
     minimumQuantity: 1,
     minimumScope: "perAroma",
     quantityStep: 1,
-    basePrice: 34,
+    basePrice: 36,
+    variants: [
+      { id: "100g", label: "100g", price: 36 },
+      { id: "200g", label: "200g", price: 70 }
+    ],
     discountTiers: [{ minQuantity: 5, discount: 5 }, { minQuantity: 10, discount: 8 }],
     options: UNIT_OPTIONS,
     featured: true,
