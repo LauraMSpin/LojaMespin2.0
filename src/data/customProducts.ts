@@ -121,10 +121,10 @@ export const CUSTOM_PRODUCTS: CustomProduct[] = [
     minimumQuantity: 1,
     minimumScope: "perAroma",
     quantityStep: 1,
-    basePrice: 36,
+    basePrice: 38,
     variants: [
-      { id: "100g", label: "100g", price: 36 },
-      { id: "200g", label: "200g", price: 70 }
+      { id: "100g", label: "100g", price: 38 },
+      { id: "200g", label: "200g", price: 72 }
     ],
     discountTiers: [{ minQuantity: 5, discount: 5 }, { minQuantity: 10, discount: 8 }],
     options: UNIT_OPTIONS,

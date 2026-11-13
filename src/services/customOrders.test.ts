@@ -142,7 +142,7 @@ describe("caixa personalizada", () => {
       ]
     });
     const d = computeCustomOrder(line, caixa, sources);
-    expect(d.unitCents).toBe(3000 + 2 * 3200 + 3 * 600);
+    expect(d.unitCents).toBe(3000 + 2 * 3600 + 3 * 600);
     expect(d.subtotalCents).toBe(d.unitCents! * 2);
     expect(d.isFrom).toBe(true);
     expect(d.pendingItems).toEqual([]);
@@ -246,11 +246,11 @@ describe("mensagem do WhatsApp com personalizados", () => {
     const details = getCustomDetails([line], CUSTOM_PRODUCTS, TEST_CATALOG);
     const msg = buildOrderMessage(customer, [], 0, details);
     expect(msg).toContain("- Quantidade de caixas: 1");
-    expect(msg).toContain("• 1x Vela Aromática 100g (Lavanda) — R$ 32,00");
+    expect(msg).toContain("• 1x Vela Aromática 100g (Lavanda) — R$ 36,00");
     expect(msg).toContain("• 1x Difusor Ultrassônico Premium — valor a combinar");
-    expect(msg).toContain("Preço da caixa: a partir de R$ 62,00");
+    expect(msg).toContain("Preço da caixa: a partir de R$ 66,00");
     expect(msg).toContain("Itens com valor a combinar: Difusor Ultrassônico Premium");
-    expect(customTotalCents(details)).toBe(6200);
+    expect(customTotalCents(details)).toBe(6600);
   });
 
   it("sem personalizados mantém a mensagem original", () => {
@@ -274,7 +274,8 @@ describe("tamanhos em personalizados", () => {
       ]
     });
     const order = computeCustomOrder(line, vela);
-    expect(order.subtotalCents).toBe(2 * 3600 + 7000);
+    const price = (id: string) => Math.round((vela.variants?.find((v) => v.id === id)?.price ?? 0) * 100);
+    expect(order.subtotalCents).toBe(2 * price("100g") + price("200g"));
     expect(validateCustomLine(line, vela)).toEqual([]);
   });
 

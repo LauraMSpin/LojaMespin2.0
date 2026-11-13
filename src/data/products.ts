@@ -52,9 +52,9 @@ export const PRODUCTS: Product[] = [
     description: "Vela em copo patê aromatizada, nos tamanhos de 100g e 200g.",
     image: "assets/products/produto-001.jpg",
     gallery: ["assets/products/produto-002.jpg"],
-    price: 32,
+    price: 36,
     variants: [
-      { id: "100g", label: "100g", price: 32 },
+      { id: "100g", label: "100g", price: 36 },
       { id: "200g", label: "200g", price: 70 }
     ],
     aromas: AROMAS_VELAS,
