@@ -176,23 +176,5 @@ export const CUSTOM_PRODUCTS: CustomProduct[] = [
     image: "assets/personalizados/cerveja.jpg",
     productionTime: "7 dias úteis",
     sortOrder: 7
-  },
-    {
-    id: "pets-aromáticos",
-    name: "Pets Aromáticos",
-    description: "Pets aromáticos de Menta & Flor de Lótus para decorar e perfumar o ambiente.",
-    kind: "unit",
-    available: true,
-    minimumQuantity: 1,
-    minimumScope: "perAroma",
-    quantityStep: 1,
-    basePrice: 18,
-    discountTiers: [],
-    options: UNIT_OPTIONS,
-    featured: true,
-    image: "assets/products/produto-006.jpg",
-    gallery: ["assets/products/produto-006-2.jpg"],
-    productionTime: "7 dias úteis",
-    sortOrder: 8
-  },
+  }
 ];
